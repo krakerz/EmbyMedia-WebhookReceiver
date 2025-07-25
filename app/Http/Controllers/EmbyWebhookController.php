@@ -3,12 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\EmbyWebhook;
+use App\Services\ImageFetchingService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
 class EmbyWebhookController extends Controller
 {
+    private ImageFetchingService $imageFetchingService;
+
+    public function __construct(ImageFetchingService $imageFetchingService)
+    {
+        $this->imageFetchingService = $imageFetchingService;
+    }
+
     /**
      * Handle incoming Emby webhook
      */
@@ -25,6 +33,36 @@ class EmbyWebhookController extends Controller
             $userData = $this->extractUserData($payload);
             $serverData = $this->extractServerData($payload);
             $metadata = $this->extractMetadata($payload);
+
+            // Fetch cover image if this is a new media item
+            if (in_array($eventType, ['library.new', 'item.added']) && isset($itemData['type'], $itemData['name'])) {
+                $coverImage = $this->imageFetchingService->fetchCoverImage(
+                    $metadata,
+                    $itemData['type'],
+                    $itemData['name'],
+                    $payload['Item'] ?? [] // Pass raw item data for Emby image fetching
+                );
+
+                if ($coverImage) {
+                    $metadata = array_merge($metadata, $coverImage);
+                    Log::info('Cover image fetched successfully', [
+                        'item_name' => $itemData['name'],
+                        'source' => $coverImage['source']
+                    ]);
+                }
+
+                // For episodes, also try to get series poster if episode image not found
+                if ($itemData['type'] === 'Episode' && !isset($coverImage['poster_url'])) {
+                    $seriesPoster = $this->imageFetchingService->fetchSeriesPosterForEpisode($metadata);
+                    if ($seriesPoster) {
+                        $metadata = array_merge($metadata, $seriesPoster);
+                        Log::info('Series poster fetched for episode', [
+                            'item_name' => $itemData['name'],
+                            'series_name' => $metadata['series_name'] ?? 'Unknown'
+                        ]);
+                    }
+                }
+            }
 
             // Store webhook data
             EmbyWebhook::create([
@@ -56,7 +94,11 @@ class EmbyWebhookController extends Controller
     public function index()
     {
         $webhooks = EmbyWebhook::orderBy('created_at', 'desc')->paginate(20);
-        return view('webhooks.index', compact('webhooks'));
+        $refreshTimer = config('services.webhook.refresh_timer', 30);
+        $showRawData = config('services.webhook.show_raw_data', true);
+        $showFileLocation = config('services.webhook.show_file_location', true);
+        $showEventDetails = config('services.webhook.show_event_details', true);
+        return view('webhooks.index', compact('webhooks', 'refreshTimer', 'showRawData', 'showFileLocation', 'showEventDetails'));
     }
 
     /**
@@ -64,7 +106,10 @@ class EmbyWebhookController extends Controller
      */
     public function show(EmbyWebhook $webhook)
     {
-        return view('webhooks.show', compact('webhook'));
+        $showRawData = config('services.webhook.show_raw_data', true);
+        $showFileLocation = config('services.webhook.show_file_location', true);
+        $showEventDetails = config('services.webhook.show_event_details', true);
+        return view('webhooks.show', compact('webhook', 'showRawData', 'showFileLocation', 'showEventDetails'));
     }
 
     /**
@@ -156,6 +201,7 @@ class EmbyWebhookController extends Controller
                 'official_rating' => $item['OfficialRating'] ?? null,
                 'date_created' => $item['DateCreated'] ?? null,
                 'provider_ids' => $item['ProviderIds'] ?? [],
+                'external_urls' => $item['ExternalUrls'] ?? [],
                 'media_type' => $item['MediaType'] ?? null,
                 'container' => $item['Container'] ?? null,
                 'size' => $item['Size'] ?? null,
@@ -164,6 +210,10 @@ class EmbyWebhookController extends Controller
             // Add series-specific metadata
             if (isset($payload['Series'])) {
                 $metadata['series_name'] = $payload['Series']['Name'] ?? null;
+                $metadata['season_number'] = $item['ParentIndexNumber'] ?? null;
+                $metadata['episode_number'] = $item['IndexNumber'] ?? null;
+            } elseif (isset($item['SeriesName'])) {
+                $metadata['series_name'] = $item['SeriesName'];
                 $metadata['season_number'] = $item['ParentIndexNumber'] ?? null;
                 $metadata['episode_number'] = $item['IndexNumber'] ?? null;
             }

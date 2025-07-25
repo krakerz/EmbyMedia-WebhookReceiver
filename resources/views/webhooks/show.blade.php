@@ -227,10 +227,38 @@
         </div>
         
         <!-- External IDs -->
-        @if(isset($webhook->metadata['provider_ids']) && is_array($webhook->metadata['provider_ids']) && count($webhook->metadata['provider_ids']) > 0)
+        @if(isset($webhook->metadata['external_urls']) && is_array($webhook->metadata['external_urls']) && count($webhook->metadata['external_urls']) > 0)
             <div class="bg-white shadow-lg rounded-xl overflow-hidden">
                 <div class="px-6 py-4 bg-gray-50 border-b">
                     <h3 class="text-lg font-semibold text-gray-900">🔗 External Links</h3>
+                </div>
+                <div class="p-6">
+                    <dl class="space-y-4">
+                        @foreach($webhook->metadata['external_urls'] as $externalUrl)
+                            @if(isset($externalUrl['Name']) && isset($externalUrl['Url']))
+                                <div class="flex justify-between items-center">
+                                    <dt class="text-sm font-medium text-gray-500">{{ $externalUrl['Name'] }}</dt>
+                                    <dd class="text-sm">
+                                        <a href="{{ $externalUrl['Url'] }}" target="_blank" 
+                                           class="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center">
+                                            View on {{ $externalUrl['Name'] }}
+                                            <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                            </svg>
+                                        </a>
+                                    </dd>
+                                </div>
+                            @endif
+                        @endforeach
+                    </dl>
+                </div>
+            </div>
+        @endif
+
+        @if(isset($webhook->metadata['provider_ids']) && is_array($webhook->metadata['provider_ids']) && count($webhook->metadata['provider_ids']) > 0)
+            <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+                <div class="px-6 py-4 bg-gray-50 border-b">
+                    <h3 class="text-lg font-semibold text-gray-900">🏷️ Provider IDs</h3>
                 </div>
                 <div class="p-6">
                     <dl class="space-y-4">
@@ -239,19 +267,7 @@
                                 <div class="flex justify-between items-center">
                                     <dt class="text-sm font-medium text-gray-500">{{ ucfirst($provider) }}</dt>
                                     <dd class="text-sm">
-                                        @if($provider === 'Imdb')
-                                            <a href="https://www.imdb.com/title/{{ $id }}" target="_blank" 
-                                               class="text-blue-600 hover:text-blue-800 font-medium">
-                                                {{ $id }} ↗
-                                            </a>
-                                        @elseif($provider === 'Tmdb')
-                                            <a href="https://www.themoviedb.org/movie/{{ $id }}" target="_blank" 
-                                               class="text-blue-600 hover:text-blue-800 font-medium">
-                                                {{ $id }} ↗
-                                            </a>
-                                        @else
-                                            <span class="text-gray-900 font-mono">{{ $id }}</span>
-                                        @endif
+                                        <span class="text-gray-900 font-mono">{{ $id }}</span>
                                     </dd>
                                 </div>
                             @endif
@@ -263,7 +279,7 @@
     </div>
 
     <!-- File Path -->
-    @if($webhook->item_path)
+    @if($webhook->item_path && ($showFileLocation ?? true))
         <div class="bg-white shadow-lg rounded-xl overflow-hidden mb-6">
             <div class="px-6 py-4 bg-gray-50 border-b">
                 <h3 class="text-lg font-semibold text-gray-900">📁 File Location</h3>
@@ -276,46 +292,50 @@
         </div>
     @endif
 
-    <!-- Event Details -->
-    <div class="bg-white shadow-lg rounded-xl overflow-hidden mb-6">
-        <div class="px-6 py-4 bg-gray-50 border-b">
-            <h3 class="text-lg font-semibold text-gray-900">📡 Webhook Event Details</h3>
+    @if($showEventDetails ?? true)
+        <!-- Event Details -->
+        <div class="bg-white shadow-lg rounded-xl overflow-hidden mb-6">
+            <div class="px-6 py-4 bg-gray-50 border-b">
+                <h3 class="text-lg font-semibold text-gray-900">📡 Webhook Event Details</h3>
+            </div>
+            <div class="p-6">
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 mb-1">Event Type</dt>
+                        <dd>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                {{ $webhook->event_type }}
+                            </span>
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500 mb-1">Received</dt>
+                        <dd class="text-sm text-gray-900">
+                            {{ $webhook->created_at->format('F j, Y \a\t g:i:s A') }}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
         </div>
-        <div class="p-6">
-            <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 mb-1">Event Type</dt>
-                    <dd>
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                            {{ $webhook->event_type }}
-                        </span>
-                    </dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500 mb-1">Received</dt>
-                    <dd class="text-sm text-gray-900">
-                        {{ $webhook->created_at->format('F j, Y \a\t g:i:s A') }}
-                    </dd>
-                </div>
-            </dl>
-        </div>
-    </div>
+    @endif
 
-    <!-- Raw Data (Collapsible) -->
-    <div class="bg-white shadow-lg rounded-xl overflow-hidden">
-        <div class="px-6 py-4 bg-gray-50 border-b">
-            <button onclick="toggleRawData()" class="w-full text-left flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-gray-900">🔧 Raw Webhook Data</h3>
-                <svg id="raw-data-icon" class="h-5 w-5 text-gray-500 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
+    @if($showRawData ?? true)
+        <!-- Raw Data (Collapsible) -->
+        <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+            <div class="px-6 py-4 bg-gray-50 border-b">
+                <button onclick="toggleRawData()" class="w-full text-left flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">🔧 Raw Webhook Data</h3>
+                    <svg id="raw-data-icon" class="h-5 w-5 text-gray-500 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+            </div>
+            <div id="raw-data-content" class="hidden p-6">
+                <p class="text-sm text-gray-600 mb-4">Complete webhook payload received from Emby server</p>
+                <pre class="bg-gray-50 rounded-lg p-4 text-xs overflow-x-auto max-h-96 overflow-y-auto"><code>{{ json_encode($webhook->raw_payload, JSON_PRETTY_PRINT) }}</code></pre>
+            </div>
         </div>
-        <div id="raw-data-content" class="hidden p-6">
-            <p class="text-sm text-gray-600 mb-4">Complete webhook payload received from Emby server</p>
-            <pre class="bg-gray-50 rounded-lg p-4 text-xs overflow-x-auto max-h-96 overflow-y-auto"><code>{{ json_encode($webhook->raw_payload, JSON_PRETTY_PRINT) }}</code></pre>
-        </div>
-    </div>
+    @endif
 </div>
 
 <script>

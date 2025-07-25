@@ -158,7 +158,7 @@
     <script>
         // Auto-refresh functionality with visual indicator
         let refreshTimer;
-        let refreshCountdown = 30;
+        let refreshCountdown = {{ $refreshTimer ?? 30 }};
         
         function startRefreshTimer() {
             refreshTimer = setInterval(() => {
