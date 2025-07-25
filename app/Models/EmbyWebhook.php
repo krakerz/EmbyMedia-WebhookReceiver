@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class EmbyWebhook extends Model
 {
@@ -24,6 +25,28 @@ class EmbyWebhook extends Model
         'metadata' => 'array',
         'raw_payload' => 'array',
     ];
+
+    /**
+     * Boot the model and generate UUID on creation
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) Str::uuid();
+            }
+        });
+    }
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 
     public function getFormattedCreatedAtAttribute()
     {
