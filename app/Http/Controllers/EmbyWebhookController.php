@@ -194,6 +194,8 @@ class EmbyWebhookController extends Controller
             $metadata = [
                 'overview' => $item['Overview'] ?? null,
                 'year' => $item['ProductionYear'] ?? null,
+                'premiere_date' => $item['PremiereDate'] ?? null,
+                'end_date' => $item['EndDate'] ?? null,
                 'runtime' => $item['RunTimeTicks'] ?? null,
                 'genres' => $item['Genres'] ?? [],
                 'tags' => $item['Tags'] ?? [],

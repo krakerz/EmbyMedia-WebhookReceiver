@@ -116,7 +116,14 @@
                 <!-- Overview/Summary -->
                 @if(isset($webhook->metadata['overview']) && $webhook->metadata['overview'])
                     <div class="mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">📖 Summary</h3>
+                        <div class="flex items-start justify-between mb-2">
+                            <h3 class="text-lg font-semibold text-gray-900">📖 Summary</h3>
+                            @if(isset($webhook->metadata['premiere_date']) && $webhook->metadata['premiere_date'])
+                                <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                                    🎬 Premiered {{ \Carbon\Carbon::parse($webhook->metadata['premiere_date'])->format('M d, Y') }}
+                                </span>
+                            @endif
+                        </div>
                         <p class="text-gray-700 leading-relaxed">
                             {{ $webhook->metadata['overview'] }}
                         </p>
