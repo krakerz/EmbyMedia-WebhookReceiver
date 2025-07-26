@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link rel="icon" href="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/emby.png" />
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -67,8 +67,8 @@
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-3">
                     <div class="flex-shrink-0">
-                        <div class="w-10 h-10 bg-gradient-to-br from-emby-500 to-emby-700 rounded-xl flex items-center justify-center shadow-lg">
-                            <span class="text-white text-xl font-bold">🎬</span>
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center">
+                            <img src="/images/emby.svg" alt="Emby Logo" class="w-6 h-6" />
                         </div>
                     </div>
                     <div>
@@ -108,8 +108,8 @@
         <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="flex items-center space-x-2 mb-4 md:mb-0">
-                    <div class="w-6 h-6 bg-gradient-to-br from-emby-500 to-emby-700 rounded-lg flex items-center justify-center">
-                        <span class="text-white text-xs">🎬</span>
+                    <div class="w-6 h-6 rounded-lg flex items-center justify-center">
+                        <img src="/images/emby.svg" alt="Emby Logo" class="w-4 h-4" />
                     </div>
                     <span class="text-sm font-medium text-gray-700">Emby Webhook Dashboard</span>
                 </div>
