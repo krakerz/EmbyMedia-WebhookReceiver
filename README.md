@@ -60,6 +60,172 @@ A Laravel application that receives webhooks from Emby media server and displays
    php artisan serve
    ```
 
+## Nginx Configuration
+
+For production deployment, here's a complete nginx configuration example:
+
+### Site Configuration (`/etc/nginx/sites-available/emby-webhook`)
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+    
+    # Redirect HTTP to HTTPS
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name your-domain.com;
+    
+    # SSL Configuration
+    ssl_certificate /path/to/your/certificate.crt;
+    ssl_certificate_key /path/to/your/private.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:SSL:10m;
+    
+    # Document root
+    root /var/www/emby-webhook/public;
+    index index.php index.html;
+    
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+    
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied expired no-cache no-store private must-revalidate auth;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+    
+    # Main location block
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+    
+    # PHP-FPM configuration
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;  # Adjust PHP version as needed
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_hide_header X-Powered-By;
+        
+        # Increase timeouts for webhook processing
+        fastcgi_read_timeout 300;
+        fastcgi_send_timeout 300;
+    }
+    
+    # Webhook endpoint with specific configuration
+    location /emby/webhook {
+        # Allow larger request bodies for webhook payloads
+        client_max_body_size 10M;
+        
+        # Rate limiting (adjust as needed)
+        limit_req zone=webhook burst=10 nodelay;
+        
+        try_files $uri /index.php?$query_string;
+    }
+    
+    # Static assets caching
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+    
+    # Deny access to sensitive files
+    location ~ /\. {
+        deny all;
+    }
+    
+    location ~ /\.env {
+        deny all;
+    }
+    
+    location ~ /storage/ {
+        deny all;
+    }
+    
+    location ~ /bootstrap/cache/ {
+        deny all;
+    }
+    
+    # Logs
+    access_log /var/log/nginx/emby-webhook.access.log;
+    error_log /var/log/nginx/emby-webhook.error.log;
+}
+```
+
+### Rate Limiting Configuration (`/etc/nginx/nginx.conf`)
+
+Add this to the `http` block in your main nginx configuration:
+
+```nginx
+# Rate limiting for webhook endpoint
+limit_req_zone $binary_remote_addr zone=webhook:10m rate=30r/m;
+```
+
+### Deployment Steps
+
+1. **Copy your application to the server:**
+   ```bash
+   sudo cp -r /path/to/EmbyMedia-WebhookReceiver /var/www/emby-webhook
+   sudo chown -R www-data:www-data /var/www/emby-webhook
+   sudo chmod -R 755 /var/www/emby-webhook
+   sudo chmod -R 775 /var/www/emby-webhook/storage
+   sudo chmod -R 775 /var/www/emby-webhook/bootstrap/cache
+   ```
+
+2. **Enable the site:**
+   ```bash
+   sudo ln -s /etc/nginx/sites-available/emby-webhook /etc/nginx/sites-enabled/
+   sudo nginx -t
+   sudo systemctl reload nginx
+   ```
+
+3. **Set up environment for production:**
+   ```bash
+   cd /var/www/emby-webhook
+   sudo -u www-data cp .env.example .env
+   sudo -u www-data php artisan key:generate
+   sudo -u www-data php artisan migrate --force
+   sudo -u www-data php artisan config:cache
+   sudo -u www-data php artisan route:cache
+   sudo -u www-data php artisan view:cache
+   ```
+
+4. **Configure environment variables:**
+   ```env
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_URL=https://your-domain.com
+   
+   # Database configuration
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=emby_webhook
+   DB_USERNAME=your_db_user
+   DB_PASSWORD=your_db_password
+   
+   # Other configurations...
+   ```
+
+### Security Considerations
+
+- **Firewall**: Restrict access to the webhook endpoint to your Emby server IP
+- **SSL**: Always use HTTPS in production
+- **Rate Limiting**: Implement rate limiting to prevent abuse
+- **Monitoring**: Set up log monitoring for the webhook endpoint
+- **Backup**: Regular database backups of webhook data
+
 ## API Keys Setup
 
 ### Emby Server Configuration (Primary Image Source)

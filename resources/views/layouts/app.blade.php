@@ -122,9 +122,11 @@
             </div>
             
             <div class="mt-4 pt-4 border-t border-gray-200 text-center">
+                @if(config('app.debug'))
                 <p class="text-xs text-gray-400">
                     Webhook endpoint: <code class="bg-gray-100 px-2 py-1 rounded text-gray-600">{{ url('/emby/webhook') }}</code>
                 </p>
+                @endif
             </div>
         </div>
     </footer>
