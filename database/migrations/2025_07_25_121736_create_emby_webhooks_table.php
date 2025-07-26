@@ -21,7 +21,8 @@ return new class extends Migration
             $table->string('server_name')->nullable();
             $table->json('metadata')->nullable();
             $table->json('raw_payload');
-            $table->timestamps();
+            $table->dateTime('created_at')->nullable();
+            $table->dateTime('updated_at')->nullable();
         });
     }
 

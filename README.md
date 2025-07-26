@@ -329,7 +329,27 @@ SHOW_FILE_LOCATION=true          # Show file path section (default)
 SHOW_WEBHOOK_EVENT_DETAILS=true  # Show event details section (default)
 ```
 
-### External Provider Links
+### Timezone and Badge Configuration
+
+#### TIMEZONE
+
+Set the application and database timezone using the `TIMEZONE` variable in your `.env` file.
+**If your MySQL server does not have timezone tables loaded, use a numeric offset (e.g., `+07:00`) instead of a named timezone (e.g., `Asia/Jakarta`) to avoid SQL errors.**
+
+```env
+TIMEZONE=+07:00
+```
+
+#### NEW_CARD_MINUTES
+
+Configure how long the "✨ NEW" and "✨ Recently Added" badges are shown on media cards (in minutes):
+
+```env
+NEW_CARD_MINUTES=60
+```
+
+This controls how long after creation a card is considered "new" or "recently added".
+
 The application automatically creates clickable links from the `ExternalUrls` provided in the webhook response. These URLs are content-specific and provided directly by Emby:
 
 - **Dynamic URLs**: Uses actual URLs from webhook `Item.ExternalUrls` array
@@ -416,6 +436,20 @@ Extend the `ImageFetchingService` to add support for additional image providers.
 2. Verify the webhook URL is accessible
 3. Check Laravel logs: `storage/logs/laravel.log`
 4. Ensure proper firewall configuration
+
+### MySQL Timezone Error
+
+If you see an error like:
+
+```
+SQLSTATE[HY000]: General error: 1298 Unknown or incorrect time zone: 'Asia/Jakarta'
+```
+
+This means your MySQL server does not have timezone tables loaded.
+**Solution:**
+- Use a numeric offset in your `.env` (e.g., `TIMEZONE=+07:00`)
+- Or, ask your database administrator to load the timezone tables on the MySQL server.
+
 
 ### Images Not Loading
 1. Verify API keys are correctly configured

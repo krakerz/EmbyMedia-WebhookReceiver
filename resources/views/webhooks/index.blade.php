@@ -64,7 +64,7 @@
                         
                         <!-- Media Type Badge -->
                         <div class="absolute top-3 left-3">
-                            @if($webhook->isMediaAdded())
+                            @if($webhook->isRecentlyAdded())
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-green-500 text-white shadow-lg">
                                     ✨ NEW
                                 </span>
