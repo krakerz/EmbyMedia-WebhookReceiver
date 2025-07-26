@@ -4,13 +4,14 @@ A Laravel application that receives webhooks from Emby media server and displays
 
 ## Features
 
-- 🎬 **Media Dashboard**: Beautiful grid layout showing your latest media additions
+- 🎬 **Media Dashboard**: Beautiful grid layout showing your latest media additions with fully clickable cards
 - 📊 **Detailed Metadata**: Comprehensive information about movies, TV shows, and episodes
 - 🖼️ **Cover Images**: Automatically fetches cover images from TVDB and TMDB
 - ⏱️ **Configurable Auto-refresh**: Customizable timer for dashboard updates
 - 🔍 **Provider Integration**: Support for TVDB and IMDB/TMDB metadata providers
 - 📱 **Responsive Design**: Works perfectly on desktop and mobile devices
 - 🎯 **Real-time Updates**: Live webhook processing with instant dashboard updates
+- 🖱️ **Interactive Cards**: Click anywhere on a media card to view detailed information
 
 ## Installation
 
@@ -98,9 +99,10 @@ A Laravel application that receives webhooks from Emby media server and displays
 ## Usage
 
 - Visit the main page to see all webhook events
-- Click on any media item to see detailed information
+- Click anywhere on any media card to see detailed information
 - The dashboard auto-refreshes based on your configured timer
 - Cover images are automatically fetched and cached
+- Use the filter buttons to show specific media types (Movies, TV Shows, Music)
 
 ### Webhook Endpoint
 - **URL:** `/emby/webhook`
