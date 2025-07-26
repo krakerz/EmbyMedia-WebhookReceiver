@@ -326,14 +326,15 @@ WEBHOOKS_PAGINATION_PER_PAGE=12   # 🔢 Number of items per page in dashboard
 
 ### 🌏 Timezone and Badge Configuration
 
-#### 🕒 TIMEZONE
+#### 🕒 Timezone
 
-Set the application and database timezone using the `TIMEZONE` variable in your `.env` file.
-**If your MySQL server does not have timezone tables loaded, use a numeric offset (e.g., `+07:00`) instead of a named timezone (e.g., `Asia/Jakarta`) to avoid SQL errors.**
+Set the application timezone using the `APP_TIMEZONE` variable in your `.env` file. Use a valid PHP timezone identifier (e.g., `Asia/Jakarta`, `UTC`, `America/New_York`).
 
 ```env
-TIMEZONE=+07:00
+APP_TIMEZONE=Asia/Jakarta
 ```
+
+The database connection is always set to UTC internally for maximum compatibility. All date and time display and logic are handled by Laravel using the `APP_TIMEZONE` setting. You do not need to configure any other timezone variables.
 
 #### ✨ NEW_CARD_MINUTES
 
@@ -442,9 +443,6 @@ SQLSTATE[HY000]: General error: 1298 Unknown or incorrect time zone: 'Asia/Jakar
 ```
 
 This means your MySQL server does not have timezone tables loaded.
-**Solution:**
-- Use a numeric offset in your `.env` (e.g., `TIMEZONE=+07:00`)
-- Or, ask your database administrator to load the timezone tables on the MySQL server.
 
 
 ### Images Not Loading
