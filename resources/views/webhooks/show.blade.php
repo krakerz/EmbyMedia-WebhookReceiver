@@ -79,7 +79,7 @@
                     </div>
                     
                     <!-- Status Badge -->
-                    @if($webhook->isMediaAdded())
+                    @if($webhook->isRecentlyAdded())
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-green-500 text-white shadow-lg">
                             ✨ Recently Added
                         </span>
