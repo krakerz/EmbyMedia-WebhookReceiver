@@ -322,12 +322,22 @@ SHOW_RAW_WEBHOOK_DATA=true  # Show raw data section (default)
 SHOW_RAW_WEBHOOK_DATA=false # Hide raw data section
 ```
 
-### Interface Display Options
-Control which sections are visible in the webhook details:
+### Interface Display & Pagination Options
+
+Control which sections and features are visible in the webhook details and dashboard.
+Set these in your `.env` file as needed:
+
 ```env
-SHOW_FILE_LOCATION=true          # Show file path section (default)
-SHOW_WEBHOOK_EVENT_DETAILS=true  # Show event details section (default)
+SHOW_FILE_LOCATION=true           # Show file path section (default)
+SHOW_WEBHOOK_EVENT_DETAILS=true   # Show event details section (default)
+SHOW_PROVIDER_IDS=true            # Show Provider IDs section (default)
+SHOW_PREMIERE_DATE=true           # Show Premiere Date in media details (default)
+WEBHOOKS_PAGINATION_PER_PAGE=12   # Number of items per page in dashboard
 ```
+
+- Set any of these to `false` to hide the corresponding section.
+- Adjust `WEBHOOKS_PAGINATION_PER_PAGE` to control dashboard pagination size.
+
 
 ### Timezone and Badge Configuration
 
@@ -462,12 +472,19 @@ This means your MySQL server does not have timezone tables loaded.
 2. Implement image caching strategy
 3. Monitor API rate limits
 
-## Security Notes
+## Security Best Practices
 
-- The webhook endpoint is publicly accessible (no authentication)
-- Configure firewall rules to restrict access to your Emby server
-- API keys are stored in environment variables
-- Regularly backup your webhook data
+- **Webhook Secret:** Always set `WEBHOOK_SECRET` in your `.env` to protect the `/emby/webhook` endpoint. If not set, the endpoint is open to anyone.
+- **HTTPS:** Always use HTTPS for all endpoints, especially for webhooks and dashboard access.
+- **IP Whitelisting:** Restrict access to the webhook endpoint by IP (e.g., only allow your Emby server) using firewall or nginx rules.
+- **Rate Limiting:** Consider adding rate limiting to the webhook endpoint to prevent abuse.
+- **Sensitive Data in Logs:** Avoid logging full webhook payloads in production, or mask sensitive fields in logs.
+- **Dashboard Access:** If your dashboard contains sensitive data, protect it with authentication middleware.
+- **.env and Logs:** Ensure `.env`, storage, and log files are not accessible via the web server (see nginx config).
+- **Output Escaping:** All dynamic content in Blade templates is escaped by default, but review custom HTML for possible XSS risks.
+- **API Keys:** Store all API keys and secrets in environment variables, never in source code or views.
+- **Backups:** Regularly backup your webhook data and database.
+
 
 ## Testing
 
