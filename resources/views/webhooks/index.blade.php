@@ -10,7 +10,7 @@
         <p class="text-xl text-gray-600 mb-4">Discover the latest movies, TV shows, and content added to your Emby server</p>
         <div class="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
             <div class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-            Live updates every 30 seconds
+            Live updates every {{ $refreshTimer }} seconds
         </div>
     </div>
 
@@ -35,14 +35,14 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
             @foreach($webhooks as $webhook)
                 <a href="{{ route('webhooks.show', $webhook) }}" 
-                   class="media-card block bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden cursor-pointer" 
+                   class="media-card block bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden cursor-pointer flex flex-col"
                    data-type="{{ $webhook->item_type }}">
                     
                     <!-- Media Image/Poster -->
                     <div class="relative h-64 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
                         @if(isset($webhook->metadata['poster_url']) || isset($webhook->metadata['backdrop_url']))
-                            <img src="{{ $webhook->metadata['poster_url'] ?? $webhook->metadata['backdrop_url'] }}" 
-                                 alt="{{ $webhook->item_name }}" 
+                            <img src="{{ $webhook->metadata['poster_url'] ?? $webhook->metadata['backdrop_url'] }}"
+                                 alt="{{ $webhook->item_name }}"
                                  class="w-full h-full object-cover">
                         @else
                             <!-- Placeholder for media without images -->
@@ -82,7 +82,7 @@
                     </div>
                     
                     <!-- Media Information -->
-                    <div class="p-4">
+                    <div class="p-4 flex flex-col flex-grow">
                         <!-- Title -->
                         <h3 class="font-bold text-lg text-gray-900 mb-2 line-clamp-2 leading-tight">
                             {{ $webhook->item_name ?? 'Unknown Title' }}
@@ -135,7 +135,7 @@
                         @endif
                         
                         <!-- Date Added -->
-                        <div class="flex items-center justify-between text-xs text-gray-500 border-t pt-3">
+                        <div class="flex items-center justify-between text-xs text-gray-500 border-t pt-3 mt-auto">
                             <span class="flex items-center">
                                 🕒 Added {{ $webhook->created_at->diffForHumans() }}
                             </span>
