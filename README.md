@@ -284,6 +284,19 @@ The webhook endpoint returns:
 }
 ```
 
+### Show Provider IDs Section
+
+You can control the visibility of the "Provider IDs" section in the media details view via the `.env` configuration.
+
+Add the following variable to your `.env` file:
+
+```env
+SHOW_PROVIDER_IDS=true
+```
+
+Set it to `false` to hide the Provider IDs section.
+
+This setting is also available in the `.env.example` file for reference.
 ## Configuration Options
 
 ### Timer Configuration
@@ -438,6 +451,10 @@ The tests include:
 3. Make your changes
 4. Add tests for new functionality
 5. Submit a pull request
+
+## Disclaimer
+
+This repo created with Ai helps, fork it and modify it by yourself to make it suit for you.
 
 ## License
 
