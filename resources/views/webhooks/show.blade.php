@@ -59,7 +59,7 @@
             
             <!-- Media Information -->
             <div class="md:w-2/3 lg:w-3/4 p-6 md:p-8">
-                <div class="flex items-start justify-between mb-4">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 space-y-2 sm:space-y-0">
                     <div>
                         <h1 class="text-3xl font-bold text-gray-900 mb-2">
                             {{ $webhook->item_name ?? 'Unknown Title' }}
@@ -262,7 +262,7 @@
             </div>
         @endif
 
-        @if(isset($webhook->metadata['provider_ids']) && is_array($webhook->metadata['provider_ids']) && count($webhook->metadata['provider_ids']) > 0)
+        @if(config('app.show_provider_ids', true) && isset($webhook->metadata['provider_ids']) && is_array($webhook->metadata['provider_ids']) && count($webhook->metadata['provider_ids']) > 0)
             <div class="bg-white shadow-lg rounded-xl overflow-hidden">
                 <div class="px-6 py-4 bg-gray-50 border-b">
                     <h3 class="text-lg font-semibold text-gray-900">🏷️ Provider IDs</h3>
