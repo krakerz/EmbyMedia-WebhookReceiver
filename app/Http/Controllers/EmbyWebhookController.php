@@ -22,6 +22,17 @@ class EmbyWebhookController extends Controller
      */
     public function handleWebhook(Request $request): JsonResponse
     {
+        $expectedSecret = env('WEBHOOK_SECRET');
+        $providedSecret = $request->query('secret');
+
+        if ($expectedSecret && $providedSecret !== $expectedSecret) {
+            Log::warning('Unauthorized Emby webhook access attempt', [
+                'provided_secret' => $providedSecret,
+                'ip_address' => $request->ip()
+            ]);
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+        }
+
         try {
             $payload = $request->all();
             

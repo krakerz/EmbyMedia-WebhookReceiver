@@ -34,8 +34,9 @@
         <!-- Media Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
             @foreach($webhooks as $webhook)
-                <div class="media-card bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden" 
-                     data-type="{{ $webhook->item_type }}">
+                <a href="{{ route('webhooks.show', $webhook) }}" 
+                   class="media-card block bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden cursor-pointer" 
+                   data-type="{{ $webhook->item_type }}">
                     
                     <!-- Media Image/Poster -->
                     <div class="relative h-64 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
@@ -138,13 +139,12 @@
                             <span class="flex items-center">
                                 🕒 Added {{ $webhook->created_at->diffForHumans() }}
                             </span>
-                            <a href="{{ route('webhooks.show', $webhook) }}" 
-                               class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
-                                Details →
-                            </a>
+                            <span class="inline-flex items-center text-blue-600 font-medium">
+                                View Details →
+                            </span>
                         </div>
                     </div>
-                </div>
+                </a>
             @endforeach
         </div>
 
