@@ -50,6 +50,7 @@ return [
         'show_raw_data' => env('SHOW_RAW_WEBHOOK_DATA', true),
         'show_file_location' => env('SHOW_FILE_LOCATION', true),
         'show_event_details' => env('SHOW_WEBHOOK_EVENT_DETAILS', true),
+        'pagination_per_page' => env('WEBHOOKS_PAGINATION_PER_PAGE', 20),
     ],
 
     'emby' => [
