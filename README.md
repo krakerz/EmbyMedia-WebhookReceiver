@@ -4,66 +4,52 @@ A Laravel application that receives webhooks from Emby media server and displays
 
 ## Features
 
-- **Media Dashboard**: Beautiful grid layout showing your latest media additions with fully clickable cards
-- **Detailed Metadata**: Comprehensive information about movies, TV shows, and episodes
-- **Cover Images**: Automatically fetches cover images from TVDB and TMDB
-- **Configurable Auto-refresh**: Customizable timer for dashboard updates
-- **Provider Integration**: Support for TVDB and IMDB/TMDB metadata providers
-- **Responsive Design**: Works perfectly on desktop and mobile devices
-- **Real-time Updates**: Live webhook processing with instant dashboard updates
-- **Interactive Cards**: Click anywhere on a media card to view detailed information
-- **Pagination**: Paginated media grid with Flowbite-style navigation. The number of items per page is configurable.
-- **Pagination UI**: Uses Flowbite's default pagination style with "&lt;" and "&gt;" for previous/next, blue highlight for the active page, and normal border.
-- If a user visits a page with no data, they are redirected to page 1.
+- 🖼️ **Media Dashboard**: Beautiful grid layout showing your latest media additions with fully clickable cards
+- 📝 **Detailed Metadata**: Comprehensive information about movies, TV shows, and episodes
+- 🎨 **Cover Images**: Automatically fetches cover images from TVDB and TMDB
+- ⏲️ **Configurable Auto-refresh**: Customizable timer for dashboard updates
+- 🔗 **Provider Integration**: Support for TVDB and IMDB/TMDB metadata providers
+- 📱 **Responsive Design**: Works perfectly on desktop and mobile devices
+- ⚡ **Real-time Updates**: Live webhook processing with instant dashboard updates
+- 🃏 **Interactive Cards**: Click anywhere on a media card to view detailed information
+- 📄 **Pagination**: Paginated media grid with Flowbite-style navigation. The number of items per page is configurable.
+- 🔵 **Pagination UI**: Uses Flowbite's default pagination style with "<" and ">" for previous/next, blue highlight for the active page, and normal border.
+- 🚦 **Smart Redirects**: If a user visits a page with no data, they are redirected to page 1.
 
-## Installation
+## 🚀 Installation
 
-1. **Clone the repository:**
+1. 🧑‍💻 **Clone the repository:**
    ```bash
    git clone https://github.com/krakerz/EmbyMedia-WebhookReceiver.git
    cd EmbyMedia-WebhookReceiver
    ```
 
-2. **Install dependencies:**
+2. 📦 **Install dependencies:**
    ```bash
    composer install
    npm install && npm run build
    ```
 
-3. **Set up environment:**
+3. ⚙️ **Set up environment:**
    ```bash
    cp .env.example .env
    php artisan key:generate
    ```
 
-4. **Configure your .env file:**
-   ```env
-   # Webhook Configuration
-   WEBHOOK_REFRESH_TIMER=30
-   SHOW_RAW_WEBHOOK_DATA=true
-   SHOW_FILE_LOCATION=true
-   SHOW_WEBHOOK_EVENT_DETAILS=true
+4. 📝 **Configure your `.env` file:**
+   *(See Configuration Options below for all available settings)*
 
-   # Emby server configuration for cover images
-   EMBY_BASE_URL=http://your-emby-server:8096
-   EMBY_API_KEY=your_emby_api_key_here
-
-   # External API Configuration (fallback sources)
-   TVDB_API_KEY=your_tvdb_api_key_here
-   IMDB_API_KEY=your_tmdb_api_key_here
-   ```
-
-5. **Set up database:**
+5. 🗄️ **Set up database:**
    ```bash
    php artisan migrate
    ```
 
-6. **Start the server:**
+6. 🏁 **Start the server:**
    ```bash
    php artisan serve
    ```
 
-## Nginx Configuration
+## 🛡️ Nginx Configuration
 
 For production deployment, here's a complete nginx configuration example:
 
@@ -221,13 +207,13 @@ limit_req_zone $binary_remote_addr zone=webhook:10m rate=30r/m;
    # Other configurations...
    ```
 
-### Security Considerations
+### 🛡️ Security Considerations
 
-- **Firewall**: Restrict access to the webhook endpoint to your Emby server IP
-- **SSL**: Always use HTTPS in production
-- **Rate Limiting**: Implement rate limiting to prevent abuse
-- **Monitoring**: Set up log monitoring for the webhook endpoint
-- **Backup**: Regular database backups of webhook data
+- 🔥 **Firewall**: Restrict access to the webhook endpoint to your Emby server IP
+- 🔒 **SSL**: Always use HTTPS in production
+- 🚦 **Rate Limiting**: Implement rate limiting to prevent abuse
+- 📈 **Monitoring**: Set up log monitoring for the webhook endpoint
+- 💾 **Backup**: Regular database backups of webhook data
 
 ## API Keys Setup
 
@@ -265,21 +251,21 @@ limit_req_zone $binary_remote_addr zone=webhook:10m rate=30r/m;
    - Add new media to your Emby library
    - Check the dashboard for new entries
 
-## Usage
+## 🖥️ Usage
 
-- Visit the main page to see all webhook events
-- Click anywhere on any media card to see detailed information
-- The dashboard auto-refreshes based on your configured timer
-- Cover images are automatically fetched and cached
-- Use the filter buttons to show specific media types (Movies, TV Shows, Music)
+- 🏠 Visit the main page to see all webhook events
+- 🃏 Click anywhere on any media card to see detailed information
+- 🔄 The dashboard auto-refreshes based on your configured timer
+- 🖼️ Cover images are automatically fetched and cached
+- 🎚️ Use the filter buttons to show specific media types (Movies, TV Shows, Music)
 
-### Webhook Endpoint
+### 📡 Webhook Endpoint
 - **URL:** `/emby/webhook`
 - **Method:** `POST`
 - **Content-Type:** `application/json`
-- **Authentication:** None (configure firewall rules as needed)
+- **Authentication:** 🔑 Uses `WEBHOOK_SECRET` if set (see Security Best Practices)
 
-### API Response
+### 🟢 API Response
 The webhook endpoint returns:
 ```json
 {
@@ -300,48 +286,47 @@ SHOW_PROVIDER_IDS=true
 Set it to `false` to hide the Provider IDs section.
 
 This setting is also available in the `.env.example` file for reference.
-## Configuration Options
+## ⚙️ Configuration Options
 
-### Timer Configuration
+### ⏲️ Timer Configuration
 Configure the auto-refresh timer in your `.env` file:
 ```env
 WEBHOOK_REFRESH_TIMER=30  # Refresh every 30 seconds
 ```
 
-### Image Fetching Priority
+### 🖼️ Image Fetching Priority
 The application fetches cover images in the following order:
-1. **Emby Server** (primary source using item ID and image tags)
-2. **TVDB** (fallback for TV shows, seasons, episodes)
-3. **TMDB** (fallback using IMDB ID)
-4. **TMDB Search** (final fallback using title and year)
+1. 🏠 **Emby Server** (primary source using item ID and image tags)
+2. 📺 **TVDB** (fallback for TV shows, seasons, episodes)
+3. 🎬 **TMDB** (fallback using IMDB ID)
+4. 🔍 **TMDB Search** (final fallback using title and year)
 
-### Raw Webhook Data Display
+### 🛠️ Raw Webhook Data Display
 Control whether raw webhook data is shown in the interface:
 ```env
 SHOW_RAW_WEBHOOK_DATA=true  # Show raw data section (default)
 SHOW_RAW_WEBHOOK_DATA=false # Hide raw data section
 ```
 
-### Interface Display & Pagination Options
+### 🖥️ Interface Display & Pagination Options
 
 Control which sections and features are visible in the webhook details and dashboard.
 Set these in your `.env` file as needed:
 
 ```env
-SHOW_FILE_LOCATION=true           # Show file path section (default)
-SHOW_WEBHOOK_EVENT_DETAILS=true   # Show event details section (default)
-SHOW_PROVIDER_IDS=true            # Show Provider IDs section (default)
-SHOW_PREMIERE_DATE=true           # Show Premiere Date in media details (default)
-WEBHOOKS_PAGINATION_PER_PAGE=12   # Number of items per page in dashboard
+SHOW_FILE_LOCATION=true           # 📁 Show file path section (default)
+SHOW_WEBHOOK_EVENT_DETAILS=true   # 📡 Show event details section (default)
+SHOW_PROVIDER_IDS=true            # 🏷️ Show Provider IDs section (default)
+SHOW_PREMIERE_DATE=true           # 📅 Show Premiere Date in media details (default)
+WEBHOOKS_PAGINATION_PER_PAGE=12   # 🔢 Number of items per page in dashboard
 ```
 
 - Set any of these to `false` to hide the corresponding section.
 - Adjust `WEBHOOKS_PAGINATION_PER_PAGE` to control dashboard pagination size.
 
+### 🌏 Timezone and Badge Configuration
 
-### Timezone and Badge Configuration
-
-#### TIMEZONE
+#### 🕒 TIMEZONE
 
 Set the application and database timezone using the `TIMEZONE` variable in your `.env` file.
 **If your MySQL server does not have timezone tables loaded, use a numeric offset (e.g., `+07:00`) instead of a named timezone (e.g., `Asia/Jakarta`) to avoid SQL errors.**
@@ -350,7 +335,7 @@ Set the application and database timezone using the `TIMEZONE` variable in your 
 TIMEZONE=+07:00
 ```
 
-#### NEW_CARD_MINUTES
+#### ✨ NEW_CARD_MINUTES
 
 Configure how long the "✨ NEW" and "✨ Recently Added" badges are shown on media cards (in minutes):
 
@@ -359,6 +344,7 @@ NEW_CARD_MINUTES=60
 ```
 
 This controls how long after creation a card is considered "new" or "recently added".
+
 
 The application automatically creates clickable links from the `ExternalUrls` provided in the webhook response. These URLs are content-specific and provided directly by Emby:
 
@@ -472,18 +458,18 @@ This means your MySQL server does not have timezone tables loaded.
 2. Implement image caching strategy
 3. Monitor API rate limits
 
-## Security Best Practices
+## 🛡️ Security Best Practices
 
-- **Webhook Secret:** Always set `WEBHOOK_SECRET` in your `.env` to protect the `/emby/webhook` endpoint. If not set, the endpoint is open to anyone.
-- **HTTPS:** Always use HTTPS for all endpoints, especially for webhooks and dashboard access.
-- **IP Whitelisting:** Restrict access to the webhook endpoint by IP (e.g., only allow your Emby server) using firewall or nginx rules.
-- **Rate Limiting:** Consider adding rate limiting to the webhook endpoint to prevent abuse.
-- **Sensitive Data in Logs:** Avoid logging full webhook payloads in production, or mask sensitive fields in logs.
-- **Dashboard Access:** If your dashboard contains sensitive data, protect it with authentication middleware.
-- **.env and Logs:** Ensure `.env`, storage, and log files are not accessible via the web server (see nginx config).
-- **Output Escaping:** All dynamic content in Blade templates is escaped by default, but review custom HTML for possible XSS risks.
-- **API Keys:** Store all API keys and secrets in environment variables, never in source code or views.
-- **Backups:** Regularly backup your webhook data and database.
+- 🔑 **Webhook Secret:** Always set `WEBHOOK_SECRET` in your `.env` to protect the `/emby/webhook` endpoint. If not set, the endpoint is open to anyone.
+- 🌐 **HTTPS:** Always use HTTPS for all endpoints, especially for webhooks and dashboard access.
+- 🛡️ **IP Whitelisting:** Restrict access to the webhook endpoint by IP (e.g., only allow your Emby server) using firewall or nginx rules.
+- 🚦 **Rate Limiting:** Consider adding rate limiting to the webhook endpoint to prevent abuse.
+- 🕵️ **Sensitive Data in Logs:** Avoid logging full webhook payloads in production, or mask sensitive fields in logs.
+- 🔒 **Dashboard Access:** If your dashboard contains sensitive data, protect it with authentication middleware.
+- 🗄️ **.env and Logs:** Ensure `.env`, storage, and log files are not accessible via the web server (see nginx config).
+- 🛡️ **Output Escaping:** All dynamic content in Blade templates is escaped by default, but review custom HTML for possible XSS risks.
+- 🔐 **API Keys:** Store all API keys and secrets in environment variables, never in source code or views.
+- 💾 **Backups:** Regularly backup your webhook data and database.
 
 
 ## Testing
