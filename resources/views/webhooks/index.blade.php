@@ -64,7 +64,7 @@
                         
                         <!-- Media Type Badge -->
                         <div class="absolute top-3 left-3">
-                            @if($webhook->isMediaAdded())
+                            @if($webhook->isRecentlyAdded())
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-green-500 text-white shadow-lg">
                                     ✨ NEW
                                 </span>
@@ -149,9 +149,96 @@
         </div>
 
         <!-- Pagination -->
-        <div class="flex justify-center">
-            {{ $webhooks->links() }}
+        <div class="flex justify-center mt-4">
+            @if ($webhooks->hasPages())
+                <nav aria-label="Page navigation example">
+                    <ul class="inline-flex -space-x-px text-sm">
+                        {{-- Previous Page Link --}}
+                        <li>
+                            @if ($webhooks->onFirstPage())
+                                <span class="px-3 py-2 ml-0 leading-tight text-gray-400 bg-white border border-gray-300 rounded-l-lg cursor-not-allowed select-none">
+                                    <
+                                </span>
+                            @else
+                                <a href="{{ $webhooks->previousPageUrl() }}" class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                                    <
+                                </a>
+                            @endif
+                        </li>
+
+                        {{-- Pagination Elements --}}
+                        @php
+                            $start = max(1, $webhooks->currentPage() - 2);
+                            $end = min($webhooks->lastPage(), $webhooks->currentPage() + 2);
+                            if ($webhooks->currentPage() <= 3) {
+                                $end = min(5, $webhooks->lastPage());
+                            }
+                            if ($webhooks->currentPage() > $webhooks->lastPage() - 2) {
+                                $start = max(1, $webhooks->lastPage() - 4);
+                            }
+                        @endphp
+
+                        @if ($start > 1)
+                            <li>
+                                <a href="{{ $webhooks->url(1) }}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-blue-50 hover:text-blue-700 transition-colors">1</a>
+                            </li>
+                            @if ($start > 2)
+                                <li>
+                                    <span class="px-3 py-2 leading-tight text-gray-400 bg-white border border-gray-300 select-none">…</span>
+                                </li>
+                            @endif
+                        @endif
+
+                        @for ($page = $start; $page <= $end; $page++)
+                            <li>
+                                @if ($page == $webhooks->currentPage())
+                                    <span class="px-3 py-2 leading-tight font-bold bg-blue-100 text-blue-700 border border-gray-300 focus:z-10 focus:ring-2 focus:ring-blue-500 transition-colors">
+                                        {{ $page }}
+                                    </span>
+                                @else
+                                    <a href="{{ $webhooks->url($page) }}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                                        {{ $page }}
+                                    </a>
+                                @endif
+                            </li>
+                        @endfor
+
+                        @if ($end < $webhooks->lastPage())
+                            @if ($end < $webhooks->lastPage() - 1)
+                                <li>
+                                    <span class="px-3 py-2 leading-tight text-gray-400 bg-white border border-gray-300 select-none">…</span>
+                                </li>
+                            @endif
+                            <li>
+                                <a href="{{ $webhooks->url($webhooks->lastPage()) }}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-blue-50 hover:text-blue-700 transition-colors">{{ $webhooks->lastPage() }}</a>
+                            </li>
+                        @endif
+
+                        {{-- Next Page Link --}}
+                        <li>
+                            @if ($webhooks->hasMorePages())
+                                <a href="{{ $webhooks->nextPageUrl() }}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                                    >
+                                </a>
+                            @else
+                                <span class="px-3 py-2 leading-tight text-gray-400 bg-white border border-gray-300 rounded-r-lg cursor-not-allowed select-none">
+                                    >
+                                </span>
+                            @endif
+                        </li>
+                    </ul>
+                </nav>
+            @endif
         </div>
+        <style>
+            /* Custom highlight for active page to match filter highlight, with normal border */
+            .bg-blue-100, .text-blue-700 {
+                --tw-bg-opacity: 1;
+                background-color: rgb(219 234 254 / var(--tw-bg-opacity)) !important;
+                --tw-text-opacity: 1;
+                color: rgb(29 78 216 / var(--tw-text-opacity)) !important;
+            }
+        </style>
     @else
         <!-- Empty State -->
         <div class="text-center py-16">
