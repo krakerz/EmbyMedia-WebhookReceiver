@@ -13,6 +13,17 @@ return [
     |
     */
 
+/*
+    |--------------------------------------------------------------------------
+    | Show Provider IDs
+    |--------------------------------------------------------------------------
+    |
+    | This option controls whether the Provider IDs section is displayed in the
+    | media details view. It can be toggled via the SHOW_PROVIDER_IDS environment
+    | variable in the .env file.
+    |
+    */
+    'show_provider_ids' => env('SHOW_PROVIDER_IDS', true),
     'name' => env('APP_NAME', 'Laravel'),
 
     /*
