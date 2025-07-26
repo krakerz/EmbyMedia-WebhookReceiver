@@ -102,9 +102,16 @@ class EmbyWebhookController extends Controller
     /**
      * Display webhooks dashboard
      */
-    public function index()
+    public function index(Request $request)
     {
-        $webhooks = EmbyWebhook::orderBy('created_at', 'desc')->paginate(20);
+        $perPage = config('services.webhook.pagination_per_page', 20);
+        $webhooks = EmbyWebhook::orderBy('created_at', 'desc')->paginate($perPage);
+
+        // Redirect to / or page 1 if user visits a page with no data
+        if ($webhooks->isEmpty() && $request->get('page', 1) > 1) {
+            return redirect()->route('webhooks.index', ['page' => 1]);
+        }
+
         $refreshTimer = config('services.webhook.refresh_timer', 30);
         $showRawData = config('services.webhook.show_raw_data', true);
         $showFileLocation = config('services.webhook.show_file_location', true);

@@ -4,14 +4,17 @@ A Laravel application that receives webhooks from Emby media server and displays
 
 ## Features
 
-- 🎬 **Media Dashboard**: Beautiful grid layout showing your latest media additions with fully clickable cards
-- 📊 **Detailed Metadata**: Comprehensive information about movies, TV shows, and episodes
-- 🖼️ **Cover Images**: Automatically fetches cover images from TVDB and TMDB
-- ⏱️ **Configurable Auto-refresh**: Customizable timer for dashboard updates
-- 🔍 **Provider Integration**: Support for TVDB and IMDB/TMDB metadata providers
-- 📱 **Responsive Design**: Works perfectly on desktop and mobile devices
-- 🎯 **Real-time Updates**: Live webhook processing with instant dashboard updates
-- 🖱️ **Interactive Cards**: Click anywhere on a media card to view detailed information
+- **Media Dashboard**: Beautiful grid layout showing your latest media additions with fully clickable cards
+- **Detailed Metadata**: Comprehensive information about movies, TV shows, and episodes
+- **Cover Images**: Automatically fetches cover images from TVDB and TMDB
+- **Configurable Auto-refresh**: Customizable timer for dashboard updates
+- **Provider Integration**: Support for TVDB and IMDB/TMDB metadata providers
+- **Responsive Design**: Works perfectly on desktop and mobile devices
+- **Real-time Updates**: Live webhook processing with instant dashboard updates
+- **Interactive Cards**: Click anywhere on a media card to view detailed information
+- **Pagination**: Paginated media grid with Flowbite-style navigation. The number of items per page is configurable.
+- **Pagination UI**: Uses Flowbite's default pagination style with "&lt;" and "&gt;" for previous/next, blue highlight for the active page, and normal border.
+- If a user visits a page with no data, they are redirected to page 1.
 
 ## Installation
 
