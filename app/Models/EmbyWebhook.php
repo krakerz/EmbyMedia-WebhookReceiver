@@ -57,18 +57,6 @@ class EmbyWebhook extends Model
     {
         return in_array($this->event_type, ['library.new', 'item.added']);
     }
-    /**
-     * Determine if the card is "NEW" based on configurable minutes and timezone.
-     */
-    public function isNewCard()
-    {
-        $minutes = config('webhook.new_card_minutes', env('NEW_CARD_MINUTES', 60));
-        $timezone = config('app.timezone', env('TIMEZONE', 'UTC'));
-        return $this->created_at
-            ->copy()
-            ->timezone($timezone)
-            ->gt(now($timezone)->subMinutes($minutes));
-    }
 
     /**
      * Determine if the card is "Recently Added" based on event type and time window.
@@ -76,11 +64,9 @@ class EmbyWebhook extends Model
     public function isRecentlyAdded()
     {
         $minutes = config('webhook.new_card_minutes', env('NEW_CARD_MINUTES', 60));
-        $timezone = config('app.timezone', env('TIMEZONE', 'UTC'));
         return $this->isMediaAdded() &&
             $this->created_at
                 ->copy()
-                ->timezone($timezone)
-                ->gt(now($timezone)->subMinutes($minutes));
+                ->gt(now()->subMinutes($minutes));
     }
 }
