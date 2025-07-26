@@ -187,7 +187,7 @@
                         </dd>
                     </div>
                     
-                    @if($webhook->server_name)
+                    @if(config('app.debug') && $webhook->server_name)
                         <div class="flex justify-between">
                             <dt class="text-sm font-medium text-gray-500">Server</dt>
                             <dd class="text-sm text-gray-900">{{ $webhook->server_name }}</dd>
