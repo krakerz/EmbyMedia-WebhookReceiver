@@ -452,6 +452,10 @@ The tests include:
 4. Add tests for new functionality
 5. Submit a pull request
 
+## Disclaimer
+
+This repo created with Ai helps, fork it and modify it by yourself to make it suit for you.
+
 ## License
 
 This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
