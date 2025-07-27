@@ -260,6 +260,8 @@ class EmbyWebhookController extends Controller
                 'media_type' => $item['MediaType'] ?? null,
                 'container' => $item['Container'] ?? null,
                 'size' => $item['Size'] ?? null,
+                'width' => $item['Width'] ?? null,
+                'height' => $item['Height'] ?? null,
             ];
 
             // Add series-specific metadata

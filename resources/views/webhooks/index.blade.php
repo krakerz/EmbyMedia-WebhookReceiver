@@ -15,15 +15,27 @@
     </div>
 
     @if($webhooks->count() > 0)
+        <!-- Toggle Controls -->
+        <div class="mb-4 flex flex-wrap gap-4 justify-center">
+            <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" id="toggle-images" class="form-checkbox h-4 w-4 text-blue-600 rounded" checked>
+                <span class="text-sm font-medium text-gray-700">🖼️ Show Images</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" id="toggle-descriptions" class="form-checkbox h-4 w-4 text-blue-600 rounded" checked>
+                <span class="text-sm font-medium text-gray-700">📝 Show Descriptions</span>
+            </label>
+        </div>
+
         <!-- Filter Section -->
         <div class="mb-6 flex flex-wrap gap-2 justify-center">
             <a href="{{ route('webhooks.index') }}" 
-               class="filter-btn {{ !$filter || $filter === 'all' ? 'active' : '' }} px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors">
+               class="filter-btn {{ !$filter || $filter === 'all' ? 'active' : '' }} px-4 py-2 rounded-full text-sm font-medium {{ !$filter || $filter === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800' }} hover:bg-blue-200 transition-colors">
                 All Media
             </a>
             @foreach($allowedItemTypes as $itemType)
                 <a href="{{ route('webhooks.index', ['filter' => $itemType]) }}" 
-                   class="filter-btn {{ $filter === $itemType ? 'active' : '' }} px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors">
+                   class="filter-btn {{ $filter === $itemType ? 'active' : '' }} px-4 py-2 rounded-full text-sm font-medium {{ $filter === $itemType ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800' }} hover:bg-blue-200 transition-colors">
                     @if($itemType === 'Movie')
                         🎬 Movies
                     @elseif($itemType === 'Episode')
@@ -45,7 +57,7 @@
                     
                     
                     <!-- Media Image/Poster -->
-                    <div class="relative h-64 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                    <div class="media-image relative h-64 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
                         @if(isset($webhook->metadata['poster_url']) || isset($webhook->metadata['backdrop_url']))
                             <img src="{{ $webhook->metadata['poster_url'] ?? $webhook->metadata['backdrop_url'] }}"
                                  alt="{{ $webhook->item_name }}"
@@ -119,15 +131,17 @@
                         </div>
                         
                         <!-- Summary/Overview -->
-                        @if(isset($webhook->metadata['overview']) && $webhook->metadata['overview'])
-                            <p class="text-sm text-gray-600 mb-3 line-clamp-3 leading-relaxed">
-                                {{ $webhook->metadata['overview'] }}
-                            </p>
-                        @else
-                            <p class="text-sm text-gray-400 italic mb-3">
-                                No summary available
-                            </p>
-                        @endif
+                        <div class="media-description">
+                            @if(isset($webhook->metadata['overview']) && $webhook->metadata['overview'])
+                                <p class="text-sm text-gray-600 mb-3 line-clamp-3 leading-relaxed">
+                                    {{ $webhook->metadata['overview'] }}
+                                </p>
+                            @else
+                                <p class="text-sm text-gray-400 italic mb-3">
+                                    No summary available
+                                </p>
+                            @endif
+                        </div>
                         
                         <!-- Genres -->
                         @if(isset($webhook->metadata['genres']) && is_array($webhook->metadata['genres']) && count($webhook->metadata['genres']) > 0)
@@ -292,13 +306,92 @@
         background-color: rgb(59 130 246);
         color: white;
     }
+    
+    .media-image.hidden {
+        display: none;
+    }
+    
+    .media-description.hidden {
+        display: none;
+    }
+    
+    .media-image.blurred {
+        filter: blur(10px);
+    }
 </style>
 
 <script>
-    // Auto-refresh functionality (if needed)
+    // Cookie management functions
+    function setCookie(name, value, days) {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+        document.cookie = name + '=' + value + ';expires=' + expires.toUTCString() + ';path=/';
+    }
+    
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+    
+    // Toggle functionality
     document.addEventListener('DOMContentLoaded', function() {
-        // Add any additional JavaScript functionality here
-        console.log('Emby Media Dashboard loaded');
+        const toggleImages = document.getElementById('toggle-images');
+        const toggleDescriptions = document.getElementById('toggle-descriptions');
+        const mediaImages = document.querySelectorAll('.media-image');
+        const mediaDescriptions = document.querySelectorAll('.media-description');
+        
+        // Load saved preferences from cookies (default: enabled)
+        const showImages = getCookie('show_images') !== null ? getCookie('show_images') === 'true' : false;
+        const showDescriptions = getCookie('show_descriptions') !== null ? getCookie('show_descriptions') === 'true' : false;
+        
+        // Set initial states
+        toggleImages.checked = showImages;
+        toggleDescriptions.checked = showDescriptions;
+        
+        // Apply initial visibility
+        updateImageVisibility(showImages);
+        updateDescriptionVisibility(showDescriptions);
+        
+        // Add event listeners
+        toggleImages.addEventListener('change', function() {
+            const isChecked = this.checked;
+            setCookie('show_images', isChecked, 30); // Save for 30 days
+            updateImageVisibility(isChecked);
+        });
+        
+        toggleDescriptions.addEventListener('change', function() {
+            const isChecked = this.checked;
+            setCookie('show_descriptions', isChecked, 30); // Save for 30 days
+            updateDescriptionVisibility(isChecked);
+        });
+        
+        function updateImageVisibility(show) {
+            mediaImages.forEach(image => {
+                if (show) {
+                    image.classList.remove('hidden', 'blurred');
+                } else {
+                    image.classList.add('blurred');
+                }
+            });
+        }
+        
+        function updateDescriptionVisibility(show) {
+            mediaDescriptions.forEach(description => {
+                if (show) {
+                    description.classList.remove('hidden');
+                } else {
+                    description.classList.add('hidden');
+                }
+            });
+        }
+        
+        console.log('Emby Media Dashboard loaded with toggle controls');
     });
 </script>
 @endsection
