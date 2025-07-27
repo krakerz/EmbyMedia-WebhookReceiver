@@ -15,38 +15,56 @@
     </div>
 
     @if($webhooks->count() > 0)
+        <!-- Toggle Controls -->
+        <div class="mb-4 flex flex-wrap gap-4 justify-center">
+            <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" id="toggle-images" class="form-checkbox h-4 w-4 text-blue-600 rounded" checked>
+                <span class="text-sm font-medium text-gray-700">🖼️ Show Images</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" id="toggle-descriptions" class="form-checkbox h-4 w-4 text-blue-600 rounded" checked>
+                <span class="text-sm font-medium text-gray-700">📝 Show Overview</span>
+            </label>
+        </div>
+
         <!-- Filter Section -->
         <div class="mb-6 flex flex-wrap gap-2 justify-center">
-            <button class="filter-btn active px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors" data-filter="all">
+            <a href="{{ route('webhooks.index') }}" 
+               class="filter-btn {{ !$filter || $filter === 'all' ? 'active' : '' }} px-4 py-2 rounded-full text-sm font-medium {{ !$filter || $filter === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800' }} hover:bg-blue-200 transition-colors">
                 All Media
-            </button>
-            <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors" data-filter="Movie">
-                🎬 Movies
-            </button>
-            <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors" data-filter="Episode">
-                📺 TV Shows
-            </button>
-            <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors" data-filter="Audio">
-                🎵 Music
-            </button>
+            </a>
+            @foreach($allowedItemTypes as $itemType)
+                <a href="{{ route('webhooks.index', ['filter' => $itemType]) }}" 
+                   class="filter-btn {{ $filter === $itemType ? 'active' : '' }} px-4 py-2 rounded-full text-sm font-medium {{ $filter === $itemType ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800' }} hover:bg-blue-200 transition-colors">
+                    @if($itemType === 'Movie')
+                        🎬 Movies
+                    @elseif($itemType === 'Episode')
+                        📺 TV Shows
+                    @elseif($itemType === 'Audio')
+                        🎵 Music
+                    @else
+                        {{ $itemType }}
+                    @endif
+                </a>
+            @endforeach
         </div>
 
         <!-- Media Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
             @foreach($webhooks as $webhook)
                 <a href="{{ route('webhooks.show', $webhook) }}" 
-                   class="media-card block bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden cursor-pointer flex flex-col"
-                   data-type="{{ $webhook->item_type }}">
+                   class="media-card block bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden cursor-pointer flex flex-col">
+                    
                     
                     <!-- Media Image/Poster -->
-                    <div class="relative h-64 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                    <div class="media-image relative h-64 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
                         @if(isset($webhook->metadata['poster_url']) || isset($webhook->metadata['backdrop_url']))
                             <img src="{{ $webhook->metadata['poster_url'] ?? $webhook->metadata['backdrop_url'] }}"
                                  alt="{{ $webhook->item_name }}"
-                                 class="w-full h-full object-cover">
+                                 class="w-full h-full object-cover media-image-content">
                         @else
                             <!-- Placeholder for media without images -->
-                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 media-image-content">
                                 <div class="text-center">
                                     @if($webhook->item_type === 'Movie')
                                         <div class="text-6xl mb-2">🎬</div>
@@ -79,49 +97,59 @@
                                 </span>
                             </div>
                         @endif
+
+                        <!-- Year and Runtime -->
+                        @if(isset($webhook->metadata['year']))
+                            <div class="absolute bottom-3 left-3">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-white text-gray-600 shadow-lg">
+                                    📅 {{ $webhook->metadata['year'] }}
+                                </span>
+                            </div>
+                        @endif
+                        @if(isset($webhook->metadata['runtime']) && $webhook->metadata['runtime'] > 0)
+                            <div class="absolute bottom-3 right-3">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-white text-gray-600 shadow-lg">
+                                    ⏱️ {{ gmdate('H:i', $webhook->metadata['runtime'] / 10000000) }}
+                                </span>
+                            </div>
+                        @endif
+
+                        <!-- Season/Episode Information (for TV shows) -->
+                        @if(isset($webhook->metadata['season_number']) && isset($webhook->metadata['episode_number']))
+                            <div class="absolute bottom-10 left-3"> {{-- This new tag will be at bottom-3 --}}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-white text-gray-600 shadow-lg">
+                                    S{{ str_pad($webhook->metadata['season_number'], 2, '0', STR_PAD_LEFT) }} E{{ str_pad($webhook->metadata['episode_number'], 2, '0', STR_PAD_LEFT) }}
+                                </span>
+                            </div>
+                        @endif
                     </div>
                     
                     <!-- Media Information -->
                     <div class="p-4 flex flex-col flex-grow">
                         <!-- Title -->
-                        <h3 class="font-bold text-lg text-gray-900 mb-2 line-clamp-2 leading-tight">
+                        <h3 class="font-bold text-lg text-gray-900 mb-2 line-clamp-1 leading-tight">
                             {{ $webhook->item_name ?? 'Unknown Title' }}
                         </h3>
-                        
-                        <!-- Series Information (for TV shows) -->
+
+                        <!-- Series Name (for TV shows) -->
                         @if(isset($webhook->metadata['series_name']) && $webhook->metadata['series_name'])
-                            <p class="text-sm text-blue-600 font-medium mb-1">
+                            <p class="text-sm text-blue-600 font-medium mb-1 line-clamp-1">
                                 {{ $webhook->metadata['series_name'] }}
-                                @if(isset($webhook->metadata['season_number']) && isset($webhook->metadata['episode_number']))
-                                    - S{{ str_pad($webhook->metadata['season_number'], 2, '0', STR_PAD_LEFT) }}E{{ str_pad($webhook->metadata['episode_number'], 2, '0', STR_PAD_LEFT) }}
-                                @endif
                             </p>
                         @endif
-                        
-                        <!-- Year and Runtime -->
-                        <div class="flex items-center text-sm text-gray-500 mb-3 space-x-3">
-                            @if(isset($webhook->metadata['year']))
-                                <span class="flex items-center">
-                                    📅 {{ $webhook->metadata['year'] }}
-                                </span>
-                            @endif
-                            @if(isset($webhook->metadata['runtime']) && $webhook->metadata['runtime'] > 0)
-                                <span class="flex items-center">
-                                    ⏱️ {{ gmdate('H:i', $webhook->metadata['runtime'] / 10000000) }}
-                                </span>
-                            @endif
-                        </div>
                         
                         <!-- Summary/Overview -->
-                        @if(isset($webhook->metadata['overview']) && $webhook->metadata['overview'])
-                            <p class="text-sm text-gray-600 mb-3 line-clamp-3 leading-relaxed">
-                                {{ $webhook->metadata['overview'] }}
-                            </p>
-                        @else
-                            <p class="text-sm text-gray-400 italic mb-3">
-                                No summary available
-                            </p>
-                        @endif
+                        <div class="media-description">
+                            @if(isset($webhook->metadata['overview']) && $webhook->metadata['overview'])
+                                <p class="text-sm text-gray-600 mb-3 line-clamp-4 leading-relaxed">
+                                    {{ $webhook->metadata['overview'] }}
+                                </p>
+                            @else
+                                <p class="text-sm text-gray-400 italic mb-3">
+                                    No summary available
+                                </p>
+                            @endif
+                        </div>
                         
                         <!-- Genres -->
                         @if(isset($webhook->metadata['genres']) && is_array($webhook->metadata['genres']) && count($webhook->metadata['genres']) > 0)
@@ -286,44 +314,92 @@
         background-color: rgb(59 130 246);
         color: white;
     }
+    
+    .media-image.hidden {
+        display: none;
+    }
+    
+    .media-description.hidden {
+        display: none;
+    }
+    
+    .media-image-content.blurred {
+        filter: blur(15px);
+    }
 </style>
 
 <script>
-    // Filter functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        const mediaCards = document.querySelectorAll('.media-card');
-        
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const filter = this.getAttribute('data-filter');
-                
-                // Update active button
-                filterBtns.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Filter cards
-                mediaCards.forEach(card => {
-                    const cardType = card.getAttribute('data-type');
-                    if (filter === 'all' || cardType === filter) {
-                        card.style.display = 'block';
-                        card.style.animation = 'fadeIn 0.3s ease-in';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            });
-        });
-    });
+    // Cookie management functions
+    function setCookie(name, value, days) {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+        document.cookie = name + '=' + value + ';expires=' + expires.toUTCString() + ';path=/';
+    }
     
-    // Add fade-in animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
         }
-    `;
-    document.head.appendChild(style);
+        return null;
+    }
+    
+    // Toggle functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleImages = document.getElementById('toggle-images');
+        const toggleDescriptions = document.getElementById('toggle-descriptions');
+        const mediaImages = document.querySelectorAll('.media-image-content');
+        const mediaDescriptions = document.querySelectorAll('.media-description');
+        
+        // Load saved preferences from cookies (default: enabled)
+        const showImages = getCookie('show_images') !== null ? getCookie('show_images') === 'true' : false;
+        const showDescriptions = getCookie('show_descriptions') !== null ? getCookie('show_descriptions') === 'true' : false;
+        
+        // Set initial states
+        toggleImages.checked = showImages;
+        toggleDescriptions.checked = showDescriptions;
+        
+        // Apply initial visibility
+        updateImageVisibility(showImages);
+        updateDescriptionVisibility(showDescriptions);
+        
+        // Add event listeners
+        toggleImages.addEventListener('change', function() {
+            const isChecked = this.checked;
+            setCookie('show_images', isChecked, 30); // Save for 30 days
+            updateImageVisibility(isChecked);
+        });
+        
+        toggleDescriptions.addEventListener('change', function() {
+            const isChecked = this.checked;
+            setCookie('show_descriptions', isChecked, 30); // Save for 30 days
+            updateDescriptionVisibility(isChecked);
+        });
+        
+        function updateImageVisibility(show) {
+            mediaImages.forEach(image => {
+                if (show) {
+                    image.classList.remove('hidden', 'blurred');
+                } else {
+                    image.classList.add('blurred');
+                }
+            });
+        }
+        
+        function updateDescriptionVisibility(show) {
+            mediaDescriptions.forEach(description => {
+                if (show) {
+                    description.classList.remove('hidden');
+                } else {
+                    description.classList.add('hidden');
+                }
+            });
+        }
+        
+        console.log('Emby Media Dashboard loaded with toggle controls');
+    });
 </script>
 @endsection

@@ -208,6 +208,20 @@
                         </div>
                     @endif
                     
+                    @if(isset($webhook->metadata['width']) && $webhook->metadata['width'] > 0)
+                        <div class="flex justify-between">
+                            <dt class="text-sm font-medium text-gray-500">Width</dt>
+                            <dd class="text-sm text-gray-900">{{ $webhook->metadata['width'] }}px</dd>
+                        </div>
+                    @endif
+                    
+                    @if(isset($webhook->metadata['height']) && $webhook->metadata['height'] > 0)
+                        <div class="flex justify-between">
+                            <dt class="text-sm font-medium text-gray-500">Height</dt>
+                            <dd class="text-sm text-gray-900">{{ $webhook->metadata['height'] }}px</dd>
+                        </div>
+                    @endif
+                    
                     @if(isset($webhook->metadata['size']) && $webhook->metadata['size'] > 0)
                         <div class="flex justify-between">
                             <dt class="text-sm font-medium text-gray-500">File Size</dt>
