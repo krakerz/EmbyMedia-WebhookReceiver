@@ -2,6 +2,8 @@
 
 A Laravel application that receives webhooks from Emby media server and displays them on a beautiful dashboard with metadata information and cover images fetched from TVDB and TMDB.
 
+<img width="1245" height="1127" alt="image" src="https://github.com/user-attachments/assets/e93dea1f-b88a-4ba7-b285-a35ebac05a55" />
+
 ## Features
 
 - 🖼️ **Media Dashboard**: Beautiful grid layout showing your latest media additions with fully clickable cards
