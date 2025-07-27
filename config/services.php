@@ -51,6 +51,7 @@ return [
         'show_file_location' => env('SHOW_FILE_LOCATION', true),
         'show_event_details' => env('SHOW_WEBHOOK_EVENT_DETAILS', true),
         'pagination_per_page' => env('WEBHOOKS_PAGINATION_PER_PAGE', 20),
+        'allowed_item_types' => env('WEBHOOK_ALLOWED_ITEM_TYPES', 'Movie,Episode,Audio'),
     ],
 
     'emby' => [

@@ -17,26 +17,32 @@
     @if($webhooks->count() > 0)
         <!-- Filter Section -->
         <div class="mb-6 flex flex-wrap gap-2 justify-center">
-            <button class="filter-btn active px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors" data-filter="all">
+            <a href="{{ route('webhooks.index') }}" 
+               class="filter-btn {{ !$filter || $filter === 'all' ? 'active' : '' }} px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors">
                 All Media
-            </button>
-            <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors" data-filter="Movie">
-                🎬 Movies
-            </button>
-            <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors" data-filter="Episode">
-                📺 TV Shows
-            </button>
-            <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors" data-filter="Audio">
-                🎵 Music
-            </button>
+            </a>
+            @foreach($allowedItemTypes as $itemType)
+                <a href="{{ route('webhooks.index', ['filter' => $itemType]) }}" 
+                   class="filter-btn {{ $filter === $itemType ? 'active' : '' }} px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors">
+                    @if($itemType === 'Movie')
+                        🎬 Movies
+                    @elseif($itemType === 'Episode')
+                        📺 TV Shows
+                    @elseif($itemType === 'Audio')
+                        🎵 Music
+                    @else
+                        {{ $itemType }}
+                    @endif
+                </a>
+            @endforeach
         </div>
 
         <!-- Media Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
             @foreach($webhooks as $webhook)
                 <a href="{{ route('webhooks.show', $webhook) }}" 
-                   class="media-card block bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden cursor-pointer flex flex-col"
-                   data-type="{{ $webhook->item_type }}">
+                   class="media-card block bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden cursor-pointer flex flex-col">
+                    
                     
                     <!-- Media Image/Poster -->
                     <div class="relative h-64 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
@@ -289,41 +295,10 @@
 </style>
 
 <script>
-    // Filter functionality
+    // Auto-refresh functionality (if needed)
     document.addEventListener('DOMContentLoaded', function() {
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        const mediaCards = document.querySelectorAll('.media-card');
-        
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const filter = this.getAttribute('data-filter');
-                
-                // Update active button
-                filterBtns.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Filter cards
-                mediaCards.forEach(card => {
-                    const cardType = card.getAttribute('data-type');
-                    if (filter === 'all' || cardType === filter) {
-                        card.style.display = 'block';
-                        card.style.animation = 'fadeIn 0.3s ease-in';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            });
-        });
+        // Add any additional JavaScript functionality here
+        console.log('Emby Media Dashboard loaded');
     });
-    
-    // Add fade-in animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    `;
-    document.head.appendChild(style);
 </script>
 @endsection
