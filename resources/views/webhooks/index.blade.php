@@ -23,7 +23,7 @@
             </label>
             <label class="flex items-center space-x-2 cursor-pointer">
                 <input type="checkbox" id="toggle-descriptions" class="form-checkbox h-4 w-4 text-blue-600 rounded" checked>
-                <span class="text-sm font-medium text-gray-700">📝 Show Descriptions</span>
+                <span class="text-sm font-medium text-gray-700">📝 Show Overview</span>
             </label>
         </div>
 
@@ -61,10 +61,10 @@
                         @if(isset($webhook->metadata['poster_url']) || isset($webhook->metadata['backdrop_url']))
                             <img src="{{ $webhook->metadata['poster_url'] ?? $webhook->metadata['backdrop_url'] }}"
                                  alt="{{ $webhook->item_name }}"
-                                 class="w-full h-full object-cover">
+                                 class="w-full h-full object-cover media-image-content">
                         @else
                             <!-- Placeholder for media without images -->
-                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 media-image-content">
                                 <div class="text-center">
                                     @if($webhook->item_type === 'Movie')
                                         <div class="text-6xl mb-2">🎬</div>
@@ -97,43 +97,51 @@
                                 </span>
                             </div>
                         @endif
+
+                        <!-- Year and Runtime -->
+                        @if(isset($webhook->metadata['year']))
+                            <div class="absolute bottom-3 left-3">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-white text-gray-600 shadow-lg">
+                                    📅 {{ $webhook->metadata['year'] }}
+                                </span>
+                            </div>
+                        @endif
+                        @if(isset($webhook->metadata['runtime']) && $webhook->metadata['runtime'] > 0)
+                            <div class="absolute bottom-3 right-3">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-white text-gray-600 shadow-lg">
+                                    ⏱️ {{ gmdate('H:i', $webhook->metadata['runtime'] / 10000000) }}
+                                </span>
+                            </div>
+                        @endif
+
+                        <!-- Season/Episode Information (for TV shows) -->
+                        @if(isset($webhook->metadata['season_number']) && isset($webhook->metadata['episode_number']))
+                            <div class="absolute bottom-10 left-3"> {{-- This new tag will be at bottom-3 --}}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-white text-gray-600 shadow-lg">
+                                    S{{ str_pad($webhook->metadata['season_number'], 2, '0', STR_PAD_LEFT) }} E{{ str_pad($webhook->metadata['episode_number'], 2, '0', STR_PAD_LEFT) }}
+                                </span>
+                            </div>
+                        @endif
                     </div>
                     
                     <!-- Media Information -->
                     <div class="p-4 flex flex-col flex-grow">
                         <!-- Title -->
-                        <h3 class="font-bold text-lg text-gray-900 mb-2 line-clamp-2 leading-tight">
+                        <h3 class="font-bold text-lg text-gray-900 mb-2 line-clamp-1 leading-tight">
                             {{ $webhook->item_name ?? 'Unknown Title' }}
                         </h3>
-                        
-                        <!-- Series Information (for TV shows) -->
+
+                        <!-- Series Name (for TV shows) -->
                         @if(isset($webhook->metadata['series_name']) && $webhook->metadata['series_name'])
-                            <p class="text-sm text-blue-600 font-medium mb-1">
+                            <p class="text-sm text-blue-600 font-medium mb-1 line-clamp-1">
                                 {{ $webhook->metadata['series_name'] }}
-                                @if(isset($webhook->metadata['season_number']) && isset($webhook->metadata['episode_number']))
-                                    - S{{ str_pad($webhook->metadata['season_number'], 2, '0', STR_PAD_LEFT) }}E{{ str_pad($webhook->metadata['episode_number'], 2, '0', STR_PAD_LEFT) }}
-                                @endif
                             </p>
                         @endif
-                        
-                        <!-- Year and Runtime -->
-                        <div class="flex items-center text-sm text-gray-500 mb-3 space-x-3">
-                            @if(isset($webhook->metadata['year']))
-                                <span class="flex items-center">
-                                    📅 {{ $webhook->metadata['year'] }}
-                                </span>
-                            @endif
-                            @if(isset($webhook->metadata['runtime']) && $webhook->metadata['runtime'] > 0)
-                                <span class="flex items-center">
-                                    ⏱️ {{ gmdate('H:i', $webhook->metadata['runtime'] / 10000000) }}
-                                </span>
-                            @endif
-                        </div>
                         
                         <!-- Summary/Overview -->
                         <div class="media-description">
                             @if(isset($webhook->metadata['overview']) && $webhook->metadata['overview'])
-                                <p class="text-sm text-gray-600 mb-3 line-clamp-3 leading-relaxed">
+                                <p class="text-sm text-gray-600 mb-3 line-clamp-4 leading-relaxed">
                                     {{ $webhook->metadata['overview'] }}
                                 </p>
                             @else
@@ -315,8 +323,8 @@
         display: none;
     }
     
-    .media-image.blurred {
-        filter: blur(10px);
+    .media-image-content.blurred {
+        filter: blur(15px);
     }
 </style>
 
@@ -343,7 +351,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const toggleImages = document.getElementById('toggle-images');
         const toggleDescriptions = document.getElementById('toggle-descriptions');
-        const mediaImages = document.querySelectorAll('.media-image');
+        const mediaImages = document.querySelectorAll('.media-image-content');
         const mediaDescriptions = document.querySelectorAll('.media-description');
         
         // Load saved preferences from cookies (default: enabled)
