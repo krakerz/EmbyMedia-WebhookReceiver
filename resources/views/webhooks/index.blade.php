@@ -10,7 +10,16 @@
         <p class="text-xl text-gray-600 mb-4">Discover the latest movies, TV shows, and content added to your Emby server</p>
         <div class="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
             <div class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-            Live updates every {{ $refreshTimer }} seconds
+            Live updates every
+            @if($refreshTimer < 60)
+                {{ $refreshTimer }} seconds
+            @elseif($refreshTimer % 3600 === 0)
+                {{ $refreshTimer / 3600 }} hour{{ $refreshTimer / 3600 > 1 ? 's' : '' }}
+            @elseif($refreshTimer % 60 === 0)
+                {{ $refreshTimer / 60 }} minute{{ $refreshTimer / 60 > 1 ? 's' : '' }}
+            @else
+                {{ $refreshTimer }} seconds {{-- Fallback for values not exact minutes/hours --}}
+            @endif
         </div>
     </div>
 
