@@ -15,6 +15,9 @@ A Laravel application that receives webhooks from Emby media server and displays
 - 📄 **Pagination**: Paginated media grid with Flowbite-style navigation. The number of items per page is configurable.
 - 🔵 **Pagination UI**: Uses Flowbite's default pagination style with "<" and ">" for previous/next, blue highlight for the active page, and normal border.
 - 🚦 **Smart Redirects**: If a user visits a page with no data, they are redirected to page 1.
+- 🎚️ **Advanced Filtering**: Server-side filtering by media type with configurable item types and proper pagination reset.
+- 👁️ **Toggle Controls**: Show/hide images and descriptions with cookie-based persistence across sessions.
+- 📊 **Enhanced Metadata**: Display media dimensions (width/height) in detailed view.
 
 ## 🚀 Installation
 
@@ -258,6 +261,10 @@ limit_req_zone $binary_remote_addr zone=webhook:10m rate=30r/m;
 - 🔄 The dashboard auto-refreshes based on your configured timer
 - 🖼️ Cover images are automatically fetched and cached
 - 🎚️ Use the filter buttons to show specific media types (Movies, TV Shows, Music)
+- 👁️ **Toggle Controls**: Use the "Show Images" and "Show Descriptions" toggles to customize your view
+  - **Show Images**: When unchecked, images are blurred for a spoiler-free experience
+  - **Show Descriptions**: When unchecked, descriptions are hidden to reduce clutter
+  - **Cookie Persistence**: Your preferences are saved for 30 days and persist across browser sessions
 
 ### 📡 Webhook Endpoint
 - **URL:** `/emby/webhook`
@@ -307,6 +314,24 @@ Control whether raw webhook data is shown in the interface:
 SHOW_RAW_WEBHOOK_DATA=true  # Show raw data section (default)
 SHOW_RAW_WEBHOOK_DATA=false # Hide raw data section
 ```
+
+### 🎚️ Item Type Filtering
+
+Control which media types are shown and available for filtering on the dashboard:
+
+```env
+# Comma-separated list of item types to show and filter
+# Available types: Movie, Episode, Audio, Video, etc.
+# Leave empty to show all types
+WEBHOOK_ALLOWED_ITEM_TYPES="Movie,Episode,Audio"
+```
+
+This configuration:
+- **Filters Display**: Only shows media items of the specified types
+- **Dynamic Filter Buttons**: Only creates filter buttons for allowed types
+- **Server-Side Filtering**: Filtering is handled server-side with proper pagination
+- **Pagination Reset**: When applying filters, pagination automatically resets to page 1
+- **URL Parameters**: Filters are preserved in URLs and pagination links
 
 ### 🖥️ Interface Display & Pagination Options
 
