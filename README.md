@@ -308,6 +308,24 @@ SHOW_RAW_WEBHOOK_DATA=true  # Show raw data section (default)
 SHOW_RAW_WEBHOOK_DATA=false # Hide raw data section
 ```
 
+### 🎚️ Item Type Filtering
+
+Control which media types are shown and available for filtering on the dashboard:
+
+```env
+# Comma-separated list of item types to show and filter
+# Available types: Movie, Episode, Audio, Video, etc.
+# Leave empty to show all types
+WEBHOOK_ALLOWED_ITEM_TYPES="Movie,Episode,Audio"
+```
+
+This configuration:
+- **Filters Display**: Only shows media items of the specified types
+- **Dynamic Filter Buttons**: Only creates filter buttons for allowed types
+- **Server-Side Filtering**: Filtering is handled server-side with proper pagination
+- **Pagination Reset**: When applying filters, pagination automatically resets to page 1
+- **URL Parameters**: Filters are preserved in URLs and pagination links
+
 ### 🖥️ Interface Display & Pagination Options
 
 Control which sections and features are visible in the webhook details and dashboard.

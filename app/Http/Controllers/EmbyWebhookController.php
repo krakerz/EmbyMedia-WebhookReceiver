@@ -105,18 +105,53 @@ class EmbyWebhookController extends Controller
     public function index(Request $request)
     {
         $perPage = config('services.webhook.pagination_per_page', 20);
-        $webhooks = EmbyWebhook::orderBy('created_at', 'desc')->paginate($perPage);
+        
+        // Get allowed item types from configuration
+        $allowedItemTypes = $this->getAllowedItemTypes();
+        
+        // Get filter from request
+        $filter = $request->get('filter');
+        
+        // Build query with filtering
+        $query = EmbyWebhook::orderBy('created_at', 'desc');
+        
+        // Apply item type filter if provided and valid
+        if ($filter && $filter !== 'all' && in_array($filter, $allowedItemTypes)) {
+            $query->where('item_type', $filter);
+        }
+        
+        // Apply global item type restriction
+        if (!empty($allowedItemTypes)) {
+            $query->whereIn('item_type', $allowedItemTypes);
+        }
+        
+        $webhooks = $query->paginate($perPage);
+        
+        // Append filter to pagination links
+        if ($filter) {
+            $webhooks->appends(['filter' => $filter]);
+        }
 
         // Redirect to / or page 1 if user visits a page with no data
         if ($webhooks->isEmpty() && $request->get('page', 1) > 1) {
-            return redirect()->route('webhooks.index', ['page' => 1]);
+            $redirectParams = $filter ? ['filter' => $filter, 'page' => 1] : ['page' => 1];
+            return redirect()->route('webhooks.index', $redirectParams);
         }
 
         $refreshTimer = config('services.webhook.refresh_timer', 30);
         $showRawData = config('services.webhook.show_raw_data', true);
         $showFileLocation = config('services.webhook.show_file_location', true);
         $showEventDetails = config('services.webhook.show_event_details', true);
-        return view('webhooks.index', compact('webhooks', 'refreshTimer', 'showRawData', 'showFileLocation', 'showEventDetails'));
+        
+        return view('webhooks.index', compact(
+            'webhooks', 
+            'refreshTimer', 
+            'showRawData', 
+            'showFileLocation', 
+            'showEventDetails',
+            'allowedItemTypes',
+            'filter'
+        ));
     }
 
     /**
@@ -242,5 +277,19 @@ class EmbyWebhookController extends Controller
         return array_filter($metadata, function($value) {
             return $value !== null && $value !== '';
         });
+    }
+
+    /**
+     * Get allowed item types from configuration
+     */
+    private function getAllowedItemTypes(): array
+    {
+        $allowedTypes = config('services.webhook.allowed_item_types', 'Movie,Episode,Audio');
+        
+        if (empty($allowedTypes)) {
+            return [];
+        }
+        
+        return array_map('trim', explode(',', $allowedTypes));
     }
 }
