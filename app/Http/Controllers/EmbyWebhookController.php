@@ -18,7 +18,15 @@ class EmbyWebhookController extends Controller
     }
 
     /**
-     * Handle incoming Emby webhook
+     * Handle incoming Emby webhook requests
+     * 
+     * Processes webhook data from Emby media server, validates authentication,
+     * extracts metadata, fetches cover images, and stores the webhook record.
+     * 
+     * @param Request $request The incoming HTTP request containing webhook payload
+     * @return JsonResponse JSON response indicating success or failure
+     * 
+     * @throws \Exception When webhook processing fails
      */
     public function handleWebhook(Request $request): JsonResponse
     {
@@ -100,7 +108,13 @@ class EmbyWebhookController extends Controller
     }
 
     /**
-     * Display webhooks dashboard
+     * Display webhooks dashboard with pagination and filtering
+     * 
+     * Shows a paginated list of webhook events with optional filtering by item type.
+     * Redirects to page 1 if the requested page has no data.
+     * 
+     * @param Request $request HTTP request with optional filter and page parameters
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse Dashboard view or redirect
      */
     public function index(Request $request)
     {

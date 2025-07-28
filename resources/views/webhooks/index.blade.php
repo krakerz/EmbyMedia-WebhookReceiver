@@ -203,51 +203,99 @@
                             @endif
                         </li>
 
-                        {{-- Pagination Elements --}}
                         @php
-                            $start = max(1, $webhooks->currentPage() - 2);
-                            $end = min($webhooks->lastPage(), $webhooks->currentPage() + 2);
-                            if ($webhooks->currentPage() <= 3) {
-                                $end = min(5, $webhooks->lastPage());
-                            }
-                            if ($webhooks->currentPage() > $webhooks->lastPage() - 2) {
-                                $start = max(1, $webhooks->lastPage() - 4);
-                            }
+                            $currentPage = $webhooks->currentPage();
+                            $lastPage = $webhooks->lastPage();
+                            $visiblePageCount = 3; // Number of pages to show in the main block (e.g., 1,2,3 or 7,8,9 or 18,19,20)
                         @endphp
 
-                        @if ($start > 1)
+                        {{-- Scenario 1: Total pages are small (less than or equal to 5, allowing for 1..5, etc.) --}}
+                        @if ($lastPage <= $visiblePageCount + 2) {{-- e.g., if lastPage is 5, show all 1 2 3 4 5 --}}
+                            @for ($page = 1; $page <= $lastPage; $page++)
+                                <li>
+                                    @if ($page == $currentPage)
+                                        <span class="px-3 py-2 leading-tight font-bold bg-blue-100 text-blue-700 border border-gray-300 focus:z-10 focus:ring-2 focus:ring-blue-500 transition-colors">
+                                            {{ $page }}
+                                        </span>
+                                    @else
+                                        <a href="{{ $webhooks->url($page) }}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                                            {{ $page }}
+                                        </a>
+                                    @endif
+                                </li>
+                            @endfor
+
+                        {{-- Scenario 2: Near the beginning (currentPage is 1, 2, or 3) --}}
+                        @elseif ($currentPage <= $visiblePageCount)
+                            @for ($page = 1; $page <= $visiblePageCount; $page++)
+                                <li>
+                                    @if ($page == $currentPage)
+                                        <span class="px-3 py-2 leading-tight font-bold bg-blue-100 text-blue-700 border border-gray-300 focus:z-10 focus:ring-2 focus:ring-blue-500 transition-colors">
+                                            {{ $page }}
+                                        </span>
+                                    @else
+                                        <a href="{{ $webhooks->url($page) }}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                                            {{ $page }}
+                                        </a>
+                                    @endif
+                                </li>
+                            @endfor
+                            <li>
+                                <span class="px-3 py-2 leading-tight text-gray-400 bg-white border border-gray-300 select-none">…</span>
+                            </li>
+                            <li>
+                                <a href="{{ $webhooks->url($lastPage) }}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-blue-50 hover:text-blue-700 transition-colors">{{ $lastPage }}</a>
+                            </li>
+
+                        {{-- Scenario 3: Near the end (currentPage is lastPage-2, lastPage-1, or lastPage) --}}
+                        @elseif ($currentPage >= $lastPage - $visiblePageCount + 1)
                             <li>
                                 <a href="{{ $webhooks->url(1) }}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-blue-50 hover:text-blue-700 transition-colors">1</a>
                             </li>
-                            @if ($start > 2)
-                                <li>
-                                    <span class="px-3 py-2 leading-tight text-gray-400 bg-white border border-gray-300 select-none">…</span>
-                                </li>
-                            @endif
-                        @endif
-
-                        @for ($page = $start; $page <= $end; $page++)
                             <li>
-                                @if ($page == $webhooks->currentPage())
-                                    <span class="px-3 py-2 leading-tight font-bold bg-blue-100 text-blue-700 border border-gray-300 focus:z-10 focus:ring-2 focus:ring-blue-500 transition-colors">
-                                        {{ $page }}
-                                    </span>
-                                @else
-                                    <a href="{{ $webhooks->url($page) }}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-blue-50 hover:text-blue-700 transition-colors">
-                                        {{ $page }}
-                                    </a>
-                                @endif
+                                <span class="px-3 py-2 leading-tight text-gray-400 bg-white border border-gray-300 select-none">…</span>
                             </li>
-                        @endfor
-
-                        @if ($end < $webhooks->lastPage())
-                            @if ($end < $webhooks->lastPage() - 1)
+                            @for ($page = $lastPage - $visiblePageCount + 1; $page <= $lastPage; $page++)
                                 <li>
-                                    <span class="px-3 py-2 leading-tight text-gray-400 bg-white border border-gray-300 select-none">…</span>
+                                    @if ($page == $currentPage)
+                                        <span class="px-3 py-2 leading-tight font-bold bg-blue-100 text-blue-700 border border-gray-300 focus:z-10 focus:ring-2 focus:ring-blue-500 transition-colors">
+                                            {{ $page }}
+                                        </span>
+                                    @else
+                                        <a href="{{ $webhooks->url($page) }}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                                            {{ $page }}
+                                        </a>
+                                    @endif
                                 </li>
-                            @endif
+                            @endfor
+
+                        {{-- Scenario 4: Somewhere in the middle (e.g., < 1 ... 7 8 9 ... 20 >) --}}
+                        @else
                             <li>
-                                <a href="{{ $webhooks->url($webhooks->lastPage()) }}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-blue-50 hover:text-blue-700 transition-colors">{{ $webhooks->lastPage() }}</a>
+                                <a href="{{ $webhooks->url(1) }}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-blue-50 hover:text-blue-700 transition-colors">1</a>
+                            </li>
+                            <li>
+                                <span class="px-3 py-2 leading-tight text-gray-400 bg-white border border-gray-300 select-none">…</span>
+                            </li>
+                            {{-- This loop ensures currentPage is the START of the 3-page block for the middle scenario --}}
+                            @for ($page = $currentPage; $page <= $currentPage + $visiblePageCount - 1; $page++)
+                                <li>
+                                    @if ($page == $currentPage)
+                                        <span class="px-3 py-2 leading-tight font-bold bg-blue-100 text-blue-700 border border-gray-300 focus:z-10 focus:ring-2 focus:ring-blue-500 transition-colors">
+                                            {{ $page }}
+                                        </span>
+                                    @else
+                                        <a href="{{ $webhooks->url($page) }}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                                            {{ $page }}
+                                        </a>
+                                    @endif
+                                </li>
+                            @endfor
+                            <li>
+                                <span class="px-3 py-2 leading-tight text-gray-400 bg-white border border-gray-300 select-none">…</span>
+                            </li>
+                            <li>
+                                <a href="{{ $webhooks->url($lastPage) }}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-blue-50 hover:text-blue-700 transition-colors">{{ $lastPage }}</a>
                             </li>
                         @endif
 

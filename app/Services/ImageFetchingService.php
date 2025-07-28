@@ -18,7 +18,19 @@ class ImageFetchingService
     }
 
     /**
-     * Fetch cover image for media item based on provider IDs and metadata
+     * Fetch cover image for media item using multiple provider sources
+     * 
+     * Attempts to fetch cover images in priority order:
+     * 1. Emby server (using item data)
+     * 2. TVDB (for TV content)
+     * 3. TMDB (using IMDB ID)
+     * 4. TMDB search (by title and year)
+     * 
+     * @param array $metadata Extracted metadata from webhook
+     * @param string $itemType Type of media (Movie, Episode, etc.)
+     * @param string $itemName Name/title of the media item
+     * @param array $rawItem Raw item data from Emby webhook
+     * @return array|null Array with image data and source, or null if no image found
      */
     public function fetchCoverImage(array $metadata, string $itemType, string $itemName, array $rawItem = []): ?array
     {

@@ -268,11 +268,13 @@ limit_req_zone $binary_remote_addr zone=webhook:10m rate=30r/m;
   - **Show Descriptions**: When unchecked, descriptions are hidden to reduce clutter
   - **Cookie Persistence**: Your preferences are saved for 30 days and persist across browser sessions
 
-### 📡 Webhook Endpoint
+## 📡 Webhook Endpoint
 - **URL:** `/emby/webhook`
 - **Method:** `POST`
 - **Content-Type:** `application/json`
 - **Authentication:** 🔑 Uses `WEBHOOK_SECRET` if set (see Security Best Practices)
+
+For detailed API documentation, see [docs/API.md](docs/API.md).
 
 ### 🟢 API Response
 The webhook endpoint returns:
@@ -499,9 +501,56 @@ This means your MySQL server does not have timezone tables loaded.
 
 ## Testing
 
-Run the test suite:
+The application includes comprehensive feature tests to ensure webhook functionality works correctly.
+
+### Running Tests
+
 ```bash
+# Run all tests
 php artisan test
+
+# Run specific test file
+php artisan test tests/Feature/EmbyWebhookTest.php
+
+# Run tests with coverage (requires Xdebug)
+php artisan test --coverage
+```
+
+### Test Coverage
+
+The test suite covers:
+- ✅ **Webhook Processing**: Tests webhook endpoint accepts and processes Emby data correctly
+- ✅ **Data Extraction**: Verifies metadata extraction from webhook payloads
+- ✅ **Database Storage**: Ensures webhook data is stored properly in the database
+- ✅ **Dashboard Display**: Tests that webhooks are displayed correctly on the dashboard
+- ✅ **Detail Views**: Verifies individual webhook detail pages work correctly
+- ✅ **Error Handling**: Tests handling of invalid or malformed webhook data
+- ✅ **Image Fetching**: Tests image fetching from various providers (Emby, TVDB, TMDB)
+
+### Writing Custom Tests
+
+To add new tests for custom functionality:
+
+```php
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\EmbyWebhook;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class CustomWebhookTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_custom_webhook_functionality(): void
+    {
+        // Your test implementation
+        $this->assertTrue(true);
+    }
+}
+```
 ```
 
 The tests include:

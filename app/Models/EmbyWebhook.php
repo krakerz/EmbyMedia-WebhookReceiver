@@ -48,11 +48,21 @@ class EmbyWebhook extends Model
         return 'uuid';
     }
 
+    /**
+     * Get formatted creation date for display
+     * 
+     * @return string Formatted date string (e.g., "Jul 28, 2025 12:59:43")
+     */
     public function getFormattedCreatedAtAttribute()
     {
         return $this->created_at->format('M d, Y H:i:s');
     }
 
+    /**
+     * Check if this webhook represents a media addition event
+     * 
+     * @return bool True if the event type indicates new media was added
+     */
     public function isMediaAdded()
     {
         return in_array($this->event_type, ['library.new', 'item.added']);
