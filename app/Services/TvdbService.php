@@ -67,40 +67,46 @@ class TvdbService
      */
     public function getSeriesArtwork(string $tvdbId): ?array
     {
-        $token = $this->getAuthToken();
-        if (!$token) {
-            return null;
-        }
-
-        try {
-            $response = Http::withHeaders([
-                'Authorization' => "Bearer {$token}",
-                'Accept' => 'application/json'
-            ])->get("{$this->apiUrl}/series/{$tvdbId}/artworks", [
-                'type' => 'poster'
-            ]);
-
-            if ($response->successful()) {
-                $data = $response->json();
-                $artworks = $data['data'] ?? [];
-                
-                if (!empty($artworks)) {
-                    // Get the first poster artwork
-                    $artwork = $artworks[0];
-                    return [
-                        'poster_url' => "https://artworks.thetvdb.com{$artwork['image']}",
-                        'source' => 'tvdb'
-                    ];
+        return Cache::remember(
+            "tvdb_series_artwork_{$tvdbId}",
+            now()->addMinutes(config('services.webhook.image_cache_ttl', 1440)),
+            function () use ($tvdbId) {
+                $token = $this->getAuthToken();
+                if (!$token) {
+                    return null;
                 }
-            }
-        } catch (\Exception $e) {
-            Log::error('Failed to fetch TVDB series artwork', [
-                'tvdb_id' => $tvdbId,
-                'error' => $e->getMessage()
-            ]);
-        }
 
-        return null;
+                try {
+                    $response = Http::withHeaders([
+                        'Authorization' => "Bearer {$token}",
+                        'Accept' => 'application/json'
+                    ])->get("{$this->apiUrl}/series/{$tvdbId}/artworks", [
+                        'type' => 'poster'
+                    ]);
+
+                    if ($response->successful()) {
+                        $data = $response->json();
+                        $artworks = $data['data'] ?? [];
+
+                        if (!empty($artworks)) {
+                            // Get the first poster artwork
+                            $artwork = $artworks[0];
+                            return [
+                                'poster_url' => "https://artworks.thetvdb.com{$artwork['image']}",
+                                'source' => 'tvdb'
+                            ];
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to fetch TVDB series artwork', [
+                        'tvdb_id' => $tvdbId,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+
+                return null;
+            }
+        );
     }
 
     /**
@@ -108,35 +114,41 @@ class TvdbService
      */
     public function getEpisodeArtwork(string $tvdbId): ?array
     {
-        $token = $this->getAuthToken();
-        if (!$token) {
-            return null;
-        }
-
-        try {
-            $response = Http::withHeaders([
-                'Authorization' => "Bearer {$token}",
-                'Accept' => 'application/json'
-            ])->get("{$this->apiUrl}/episodes/{$tvdbId}/extended");
-
-            if ($response->successful()) {
-                $data = $response->json();
-                $episode = $data['data'] ?? [];
-                
-                if (isset($episode['image'])) {
-                    return [
-                        'poster_url' => "https://artworks.thetvdb.com{$episode['image']}",
-                        'source' => 'tvdb'
-                    ];
+        return Cache::remember(
+            "tvdb_episode_artwork_{$tvdbId}",
+            now()->addMinutes(config('services.webhook.image_cache_ttl', 1440)),
+            function () use ($tvdbId) {
+                $token = $this->getAuthToken();
+                if (!$token) {
+                    return null;
                 }
-            }
-        } catch (\Exception $e) {
-            Log::error('Failed to fetch TVDB episode artwork', [
-                'tvdb_id' => $tvdbId,
-                'error' => $e->getMessage()
-            ]);
-        }
 
-        return null;
+                try {
+                    $response = Http::withHeaders([
+                        'Authorization' => "Bearer {$token}",
+                        'Accept' => 'application/json'
+                    ])->get("{$this->apiUrl}/episodes/{$tvdbId}/extended");
+
+                    if ($response->successful()) {
+                        $data = $response->json();
+                        $episode = $data['data'] ?? [];
+
+                        if (isset($episode['image'])) {
+                            return [
+                                'poster_url' => "https://artworks.thetvdb.com{$episode['image']}",
+                                'source' => 'tvdb'
+                            ];
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to fetch TVDB episode artwork', [
+                        'tvdb_id' => $tvdbId,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+
+                return null;
+            }
+        );
     }
 }
