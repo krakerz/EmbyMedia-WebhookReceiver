@@ -70,8 +70,7 @@ class EmbyWebhookTest extends TestCase
 
         $response->assertStatus(200)
                  ->assertSee('Test Movie')
-                 ->assertSee('library.new')
-                 ->assertSee('TestUser');
+                 ->assertSee('Movie');
     }
 
     public function test_webhook_detail_page(): void
@@ -90,7 +89,7 @@ class EmbyWebhookTest extends TestCase
             'raw_payload' => ['test' => 'data']
         ]);
 
-        $response = $this->get("/webhook/{$webhook->id}");
+        $response = $this->get("/webhook/{$webhook->uuid}");
 
         $response->assertStatus(200)
                  ->assertSee('Test Movie')

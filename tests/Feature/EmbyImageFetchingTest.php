@@ -49,7 +49,7 @@ class EmbyImageFetchingTest extends TestCase
         $webhook = EmbyWebhook::first();
         $this->assertNotNull($webhook);
         $this->assertArrayHasKey('poster_url', $webhook->metadata);
-        $this->assertStringContains('test-emby-server:8096/emby/Items/1623371/Images/Primary', $webhook->metadata['poster_url']);
+        $this->assertStringContainsString('test-emby-server:8096/emby/Items/1623371/Images/Primary', $webhook->metadata['poster_url']);
         $this->assertEquals('emby', $webhook->metadata['source']);
     }
 
@@ -65,13 +65,13 @@ class EmbyImageFetchingTest extends TestCase
 
         // Test with raw data enabled
         config(['services.webhook.show_raw_data' => true]);
-        $response = $this->get("/webhook/{$webhook->id}");
+        $response = $this->get("/webhook/{$webhook->uuid}");
         $response->assertStatus(200);
         $response->assertSee('Raw Webhook Data');
 
         // Test with raw data disabled
         config(['services.webhook.show_raw_data' => false]);
-        $response = $this->get("/webhook/{$webhook->id}");
+        $response = $this->get("/webhook/{$webhook->uuid}");
         $response->assertStatus(200);
         $response->assertDontSee('Raw Webhook Data');
     }
@@ -120,7 +120,7 @@ class EmbyImageFetchingTest extends TestCase
         
         $webhook = EmbyWebhook::first();
         $this->assertEquals('emby', $webhook->metadata['source']);
-        $this->assertStringContains('test-emby:8096', $webhook->metadata['poster_url']);
+        $this->assertStringContainsString('test-emby:8096', $webhook->metadata['poster_url']);
     }
 
     public function test_interface_display_options_are_configurable(): void
@@ -141,7 +141,7 @@ class EmbyImageFetchingTest extends TestCase
             'services.webhook.show_event_details' => true
         ]);
         
-        $response = $this->get("/webhook/{$webhook->id}");
+        $response = $this->get("/webhook/{$webhook->uuid}");
         $response->assertStatus(200);
         $response->assertSee('Raw Webhook Data');
         $response->assertSee('File Location');
@@ -154,7 +154,7 @@ class EmbyImageFetchingTest extends TestCase
             'services.webhook.show_event_details' => false
         ]);
         
-        $response = $this->get("/webhook/{$webhook->id}");
+        $response = $this->get("/webhook/{$webhook->uuid}");
         $response->assertStatus(200);
         $response->assertDontSee('Raw Webhook Data');
         $response->assertDontSee('File Location');
@@ -190,7 +190,7 @@ class EmbyImageFetchingTest extends TestCase
             'raw_payload' => ['test' => 'payload']
         ]);
 
-        $response = $this->get("/webhook/{$webhook->id}");
+        $response = $this->get("/webhook/{$webhook->uuid}");
         $response->assertStatus(200);
         
         // Check for external URLs section
@@ -207,10 +207,11 @@ class EmbyImageFetchingTest extends TestCase
         $response->assertSee('11178926');
         
         // Check that external links have target="_blank"
-        $response->assertSee('target="_blank"');
+        $response->assertSee('target="_blank"', false);
         
         // Check that external links have proper labels
         $response->assertSee('View on IMDb');
         $response->assertSee('View on TheTVDB');
         $response->assertSee('View on Trakt');
     }
+}
