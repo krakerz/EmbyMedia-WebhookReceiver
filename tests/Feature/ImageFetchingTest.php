@@ -53,7 +53,7 @@ class ImageFetchingTest extends TestCase
         $webhook = EmbyWebhook::first();
         $this->assertNotNull($webhook);
         $this->assertArrayHasKey('poster_url', $webhook->metadata);
-        $this->assertStringContains('artworks.thetvdb.com', $webhook->metadata['poster_url']);
+        $this->assertStringContainsString('artworks.thetvdb.com', $webhook->metadata['poster_url']);
         $this->assertEquals('tvdb', $webhook->metadata['source']);
     }
 
@@ -94,7 +94,7 @@ class ImageFetchingTest extends TestCase
         $webhook = EmbyWebhook::first();
         $this->assertNotNull($webhook);
         $this->assertArrayHasKey('poster_url', $webhook->metadata);
-        $this->assertStringContains('image.tmdb.org', $webhook->metadata['poster_url']);
+        $this->assertStringContainsString('image.tmdb.org', $webhook->metadata['poster_url']);
         $this->assertEquals('tmdb', $webhook->metadata['source']);
     }
 

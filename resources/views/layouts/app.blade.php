@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Emby Media Dashboard')</title>
+    <script>
+        // Applied synchronously before first paint to avoid a flash of the wrong theme.
+        document.documentElement.classList.toggle(
+            'dark',
+            localStorage.theme === 'dark' ||
+                (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        );
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,6 +30,10 @@
         .glass-effect {
             backdrop-filter: blur(10px);
             background: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark .glass-effect {
+            background: rgba(15, 23, 42, 0.4);
         }
         
         .media-card {
@@ -60,9 +73,9 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-slate-950 min-h-screen">
     <!-- Navigation -->
-    <nav class="bg-white/80 backdrop-blur-md shadow-sm border-b border-white/20 sticky top-0 z-50">
+    <nav class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm border-b border-white/20 dark:border-gray-700/50 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-3">
@@ -72,27 +85,39 @@
                         </div>
                     </div>
                     <div>
-                        <h1 class="text-xl font-bold text-gray-900">
-                            <a href="{{ route('webhooks.index') }}" class="hover:text-emby-600 transition-colors">
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">
+                            <a href="{{ route('webhooks.index') }}" class="hover:text-emby-600 dark:hover:text-emby-400 transition-colors">
                                 Emby Media Dashboard
                             </a>
                         </h1>
-                        <p class="text-xs text-gray-500 hidden sm:block">Your personal media library</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Your personal media library</p>
                     </div>
                 </div>
-                
+
                 <div class="flex items-center space-x-4">
-                    <div class="hidden md:flex items-center space-x-2 text-sm text-gray-600">
+                    <div class="hidden md:flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
                         <div class="w-2 h-2 bg-green-400 rounded-full pulse-dot"></div>
                         <span>Live monitoring</span>
                     </div>
-                    
+
                     <!-- Stats Badge -->
-                    <div class="hidden sm:flex items-center space-x-2 bg-emby-50 px-3 py-1 rounded-full">
-                        <span class="text-xs font-medium text-emby-700">
+                    <div class="hidden sm:flex items-center space-x-2 bg-emby-50 dark:bg-emby-900/40 px-3 py-1 rounded-full">
+                        <span class="text-xs font-medium text-emby-700 dark:text-emby-300">
                             {{ \App\Models\EmbyWebhook::count() }} items tracked
                         </span>
                     </div>
+
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle" type="button"
+                            class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                            aria-label="Toggle dark mode">
+                        <svg class="icon-sun w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <svg class="icon-moon w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -104,27 +129,27 @@
     </main>
 
     <!-- Footer -->
-    <footer class="mt-16 bg-white/50 backdrop-blur-sm border-t border-gray-200">
+    <footer class="mt-16 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700">
         <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="flex items-center space-x-2 mb-4 md:mb-0">
                     <div class="w-6 h-6 rounded-lg flex items-center justify-center">
                         <img src="/images/emby.svg" alt="Emby Logo" class="w-4 h-4" />
                     </div>
-                    <span class="text-sm font-medium text-gray-700">Emby Webhook Dashboard</span>
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Emby Webhook Dashboard</span>
                 </div>
-                
-                <div class="flex items-center space-x-6 text-sm text-gray-500">
+
+                <div class="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
                     <span>Built with ❤️ for media enthusiasts</span>
                     <span>•</span>
                     <span>Auto-refresh: 30s</span>
                 </div>
             </div>
-            
-            <div class="mt-4 pt-4 border-t border-gray-200 text-center">
+
+            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 text-center">
                 @if(config('app.debug'))
-                <p class="text-xs text-gray-400">
-                    Webhook endpoint: <code class="bg-gray-100 px-2 py-1 rounded text-gray-600">{{ url('/emby/webhook') }}</code>
+                <p class="text-xs text-gray-400 dark:text-gray-500">
+                    Webhook endpoint: <code class="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-gray-600 dark:text-gray-300">{{ url('/emby/webhook') }}</code>
                 </p>
                 @endif
             </div>

@@ -73,6 +73,12 @@ class EmbyWebhookController extends Controller
                         ]);
                     }
                 }
+
+                // Flag entries whose cover image could never be resolved so
+                // they can be swept up by the dashboard cleanup pass.
+                if (!isset($metadata['poster_url']) && !isset($metadata['backdrop_url'])) {
+                    $metadata['image_error'] = true;
+                }
             }
 
             // Store webhook data
@@ -104,8 +110,10 @@ class EmbyWebhookController extends Controller
      */
     public function index(Request $request)
     {
+        $this->cleanupWebhooks();
+
         $perPage = config('services.webhook.pagination_per_page', 20);
-        
+
         // Get allowed item types from configuration
         $allowedItemTypes = $this->getAllowedItemTypes();
         
@@ -163,6 +171,19 @@ class EmbyWebhookController extends Controller
         $showFileLocation = config('services.webhook.show_file_location', true);
         $showEventDetails = config('services.webhook.show_event_details', true);
         return view('webhooks.show', compact('webhook', 'showRawData', 'showFileLocation', 'showEventDetails'));
+    }
+
+    /**
+     * Flag a webhook entry whose cover image failed to load in the browser
+     * (e.g. a dead link) so the next cleanup pass removes it.
+     */
+    public function reportImageError(EmbyWebhook $webhook): JsonResponse
+    {
+        $metadata = $webhook->metadata ?? [];
+        $metadata['image_error'] = true;
+        $webhook->update(['metadata' => $metadata]);
+
+        return response()->json(['status' => 'ok']);
     }
 
     /**
@@ -279,6 +300,38 @@ class EmbyWebhookController extends Controller
         return array_filter($metadata, function($value) {
             return $value !== null && $value !== '';
         });
+    }
+
+    /**
+     * Remove stale webhook entries. Runs on every dashboard load, which
+     * includes the auto-refresh reload, so cleanup keeps pace with new events:
+     * - Media-added entries whose cover image could not be fetched
+     * - Old entries beyond the configured retention limit
+     */
+    private function cleanupWebhooks(): void
+    {
+        $imageErrorCount = EmbyWebhook::where('metadata->image_error', true)->delete();
+
+        if ($imageErrorCount > 0) {
+            Log::info('Cleanup: removed webhook entries with missing cover images', [
+                'count' => $imageErrorCount
+            ]);
+        }
+
+        $maxEntries = (int) config('services.webhook.max_entries', 100);
+        $total = EmbyWebhook::count();
+
+        if ($maxEntries > 0 && $total > $maxEntries) {
+            $excessIds = EmbyWebhook::orderBy('created_at', 'asc')
+                ->take($total - $maxEntries)
+                ->pluck('id');
+
+            $trimmedCount = EmbyWebhook::whereIn('id', $excessIds)->delete();
+            Log::info('Cleanup: removed old webhook entries beyond retention limit', [
+                'count' => $trimmedCount,
+                'max_entries' => $maxEntries
+            ]);
+        }
     }
 
     /**
