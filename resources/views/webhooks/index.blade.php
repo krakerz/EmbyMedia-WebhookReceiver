@@ -6,7 +6,10 @@
 <div class="px-4 sm:px-0">
     <!-- Header Section -->
     <div class="mb-8 text-center">
-        <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">🎬 New Media Releases</h1>
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2 flex items-center justify-center gap-3">
+            <x-icon name="movie" class="w-9 h-9 text-blue-600 dark:text-blue-400" />
+            New Media Releases
+        </h1>
         <p class="text-xl text-gray-600 dark:text-gray-400 mb-4">Discover the latest movies, TV shows, and content added to your Emby server</p>
         <div class="inline-flex items-center px-4 py-2 bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 rounded-full text-sm font-medium">
             <div class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
@@ -28,11 +31,15 @@
         <div class="mb-4 flex flex-wrap gap-4 justify-center">
             <label class="flex items-center space-x-2 cursor-pointer">
                 <input type="checkbox" id="toggle-images" class="form-checkbox h-4 w-4 text-blue-600 rounded" checked>
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">🖼️ Show Images</span>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                    <x-icon name="image" class="w-4 h-4" /> Show Images
+                </span>
             </label>
             <label class="flex items-center space-x-2 cursor-pointer">
                 <input type="checkbox" id="toggle-descriptions" class="form-checkbox h-4 w-4 text-blue-600 rounded" checked>
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">📝 Show Overview</span>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                    <x-icon name="description" class="w-4 h-4" /> Show Overview
+                </span>
             </label>
         </div>
 
@@ -46,11 +53,11 @@
                 <a href="{{ route('webhooks.index', ['filter' => $itemType]) }}"
                    class="filter-btn {{ $filter === $itemType ? 'active' : '' }} px-4 py-2 rounded-full text-sm font-medium {{ $filter === $itemType ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200' }} hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">
                     @if($itemType === 'Movie')
-                        🎬 Movies
+                        <span class="inline-flex items-center gap-1.5"><x-icon name="movie" class="w-4 h-4" /> Movies</span>
                     @elseif($itemType === 'Episode')
-                        📺 TV Shows
+                        <span class="inline-flex items-center gap-1.5"><x-icon name="tv" class="w-4 h-4" /> TV Shows</span>
                     @elseif($itemType === 'Audio')
-                        🎵 Music
+                        <span class="inline-flex items-center gap-1.5"><x-icon name="music_note" class="w-4 h-4" /> Music</span>
                     @else
                         {{ $itemType }}
                     @endif
@@ -77,13 +84,13 @@
                             <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-800 media-image-content">
                                 <div class="text-center">
                                     @if($webhook->item_type === 'Movie')
-                                        <div class="text-6xl mb-2">🎬</div>
+                                        <x-icon name="movie" class="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
                                     @elseif($webhook->item_type === 'Episode')
-                                        <div class="text-6xl mb-2">📺</div>
+                                        <x-icon name="tv" class="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
                                     @elseif($webhook->item_type === 'Audio')
-                                        <div class="text-6xl mb-2">🎵</div>
+                                        <x-icon name="music_note" class="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
                                     @else
-                                        <div class="text-6xl mb-2">📁</div>
+                                        <x-icon name="folder" class="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
                                     @endif
                                     <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">{{ ucfirst($webhook->item_type ?? 'Media') }}</p>
                                 </div>
@@ -93,8 +100,8 @@
                         <!-- Media Type Badge -->
                         <div class="absolute top-3 left-3">
                             @if($webhook->isRecentlyAdded())
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-green-500 text-white shadow-lg">
-                                    ✨ NEW
+                                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-green-500 text-white shadow-lg">
+                                    <x-icon name="auto_awesome" class="w-3.5 h-3.5" /> NEW
                                 </span>
                             @endif
                         </div>
@@ -102,8 +109,8 @@
                         <!-- Rating Badge -->
                         @if(isset($webhook->metadata['community_rating']) && $webhook->metadata['community_rating'] > 0)
                             <div class="absolute top-3 right-3">
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-yellow-500 text-white shadow-lg">
-                                    ⭐ {{ number_format($webhook->metadata['community_rating'], 1) }}
+                                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-yellow-500 text-white shadow-lg">
+                                    <x-icon name="star" class="w-3.5 h-3.5" /> {{ number_format($webhook->metadata['community_rating'], 1) }}
                                 </span>
                             </div>
                         @endif
@@ -111,15 +118,15 @@
                         <!-- Year and Runtime -->
                         @if(isset($webhook->metadata['year']))
                             <div class="absolute bottom-3 left-3">
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 shadow-lg">
-                                    📅 {{ $webhook->metadata['year'] }}
+                                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 shadow-lg">
+                                    <x-icon name="calendar_today" class="w-3.5 h-3.5" /> {{ $webhook->metadata['year'] }}
                                 </span>
                             </div>
                         @endif
                         @if(isset($webhook->metadata['runtime']) && $webhook->metadata['runtime'] > 0)
                             <div class="absolute bottom-3 right-3">
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 shadow-lg">
-                                    ⏱️ {{ gmdate('H:i', $webhook->metadata['runtime'] / 10000000) }}
+                                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 shadow-lg">
+                                    <x-icon name="timer" class="w-3.5 h-3.5" /> {{ gmdate('H:i', $webhook->metadata['runtime'] / 10000000) }}
                                 </span>
                             </div>
                         @endif
@@ -174,8 +181,8 @@
 
                         <!-- Date Added -->
                         <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 border-t dark:border-gray-700 pt-3 mt-auto">
-                            <span class="flex items-center">
-                                🕒 Added {{ $webhook->created_at->diffForHumans() }}
+                            <span class="flex items-center gap-1">
+                                <x-icon name="schedule" class="w-3.5 h-3.5" /> Added {{ $webhook->created_at->diffForHumans() }}
                             </span>
                             <span class="inline-flex items-center text-blue-600 dark:text-blue-400 font-medium">
                                 View Details →
@@ -295,7 +302,7 @@
                 Your Emby server hasn't sent any webhooks yet. Once you add new media to your library, it will appear here automatically.
             </p>
             <div class="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-6 max-w-2xl mx-auto">
-                <h4 class="font-semibold text-blue-900 dark:text-blue-300 mb-2">🔧 Setup Instructions</h4>
+                <h4 class="font-semibold text-blue-900 dark:text-blue-300 mb-2 flex items-center justify-center gap-1.5"><x-icon name="tune" class="w-4 h-4" /> Setup Instructions</h4>
                 <p class="text-sm text-blue-800 dark:text-blue-200 mb-3">
                     Configure your Emby server to send webhooks to this URL:
                 </p>

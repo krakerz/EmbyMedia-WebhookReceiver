@@ -140,7 +140,7 @@
                 </div>
 
                 <div class="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
-                    <span>Built with ❤️ for media enthusiasts</span>
+                    <span class="inline-flex items-center gap-1">Built with <x-icon name="favorite" class="w-4 h-4 text-red-500" /> for media enthusiasts</span>
                     <span>•</span>
                     <span>Auto-refresh: 30s</span>
                 </div>

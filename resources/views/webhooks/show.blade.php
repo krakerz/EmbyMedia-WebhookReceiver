@@ -43,13 +43,13 @@
                         <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-800">
                             <div class="text-center">
                                 @if($webhook->item_type === 'Movie')
-                                    <div class="text-8xl mb-4">🎬</div>
+                                    <x-icon name="movie" class="w-24 h-24 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
                                 @elseif($webhook->item_type === 'Episode')
-                                    <div class="text-8xl mb-4">📺</div>
+                                    <x-icon name="tv" class="w-24 h-24 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
                                 @elseif($webhook->item_type === 'Audio')
-                                    <div class="text-8xl mb-4">🎵</div>
+                                    <x-icon name="music_note" class="w-24 h-24 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
                                 @else
-                                    <div class="text-8xl mb-4">📁</div>
+                                    <x-icon name="folder" class="w-24 h-24 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
                                 @endif
                                 <p class="text-lg text-gray-500 dark:text-gray-400 font-medium">{{ ucfirst($webhook->item_type ?? 'Media') }}</p>
                             </div>
@@ -81,8 +81,8 @@
                     
                     <!-- Status Badge -->
                     @if($webhook->isRecentlyAdded())
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-green-500 text-white shadow-lg">
-                            ✨ Recently Added
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold bg-green-500 text-white shadow-lg">
+                            <x-icon name="auto_awesome" class="w-4 h-4" /> Recently Added
                         </span>
                     @endif
                 </div>
@@ -90,26 +90,26 @@
                 <!-- Quick Info Row -->
                 <div class="flex flex-wrap items-center gap-4 mb-6 text-sm text-gray-600 dark:text-gray-300">
                     @if(isset($webhook->metadata['year']))
-                        <span class="flex items-center bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
-                            📅 {{ $webhook->metadata['year'] }}
+                        <span class="flex items-center gap-1.5 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+                            <x-icon name="calendar_today" class="w-4 h-4" /> {{ $webhook->metadata['year'] }}
                         </span>
                     @endif
 
                     @if(isset($webhook->metadata['runtime']) && $webhook->metadata['runtime'] > 0)
-                        <span class="flex items-center bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
-                            ⏱️ {{ gmdate('H:i', $webhook->metadata['runtime'] / 10000000) }}
+                        <span class="flex items-center gap-1.5 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+                            <x-icon name="timer" class="w-4 h-4" /> {{ gmdate('H:i', $webhook->metadata['runtime'] / 10000000) }}
                         </span>
                     @endif
 
                     @if(isset($webhook->metadata['official_rating']) && $webhook->metadata['official_rating'])
-                        <span class="flex items-center bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
-                            🏷️ {{ $webhook->metadata['official_rating'] }}
+                        <span class="flex items-center gap-1.5 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+                            <x-icon name="label" class="w-4 h-4" /> {{ $webhook->metadata['official_rating'] }}
                         </span>
                     @endif
 
                     @if(isset($webhook->metadata['community_rating']) && $webhook->metadata['community_rating'] > 0)
-                        <span class="flex items-center bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 px-3 py-1 rounded-full font-medium">
-                            ⭐ {{ number_format($webhook->metadata['community_rating'], 1) }}/10
+                        <span class="flex items-center gap-1.5 bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 px-3 py-1 rounded-full font-medium">
+                            <x-icon name="star" class="w-4 h-4" /> {{ number_format($webhook->metadata['community_rating'], 1) }}/10
                         </span>
                     @endif
                 </div>
@@ -118,10 +118,10 @@
                 @if(isset($webhook->metadata['overview']) && $webhook->metadata['overview'])
                     <div class="mb-6">
                         <div class="flex items-start justify-between mb-2">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">📖 Summary</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1.5"><x-icon name="menu_book" class="w-4 h-4" /> Summary</h3>
                             @if(isset($webhook->metadata['premiere_date']) && $webhook->metadata['premiere_date'])
-                                <span class="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
-                                    🎬 Premiered {{ \Carbon\Carbon::parse($webhook->metadata['premiere_date'])->format('M d, Y') }}
+                                <span class="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+                                    <x-icon name="movie" class="w-4 h-4" /> Premiered {{ \Carbon\Carbon::parse($webhook->metadata['premiere_date'])->format('M d, Y') }}
                                 </span>
                             @endif
                         </div>
@@ -134,7 +134,7 @@
                 <!-- Genres -->
                 @if(isset($webhook->metadata['genres']) && is_array($webhook->metadata['genres']) && count($webhook->metadata['genres']) > 0)
                     <div class="mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">🎭 Genres</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-1.5"><x-icon name="grid_view" class="w-4 h-4" /> Genres</h3>
                         <div class="flex flex-wrap gap-2">
                             @foreach($webhook->metadata['genres'] as $genre)
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300">
@@ -148,7 +148,7 @@
                 <!-- Tags -->
                 @if(isset($webhook->metadata['tags']) && is_array($webhook->metadata['tags']) && count($webhook->metadata['tags']) > 0)
                     <div class="mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">🏷️ Tags</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-1.5"><x-icon name="label" class="w-4 h-4" /> Tags</h3>
                         <div class="flex flex-wrap gap-2">
                             @foreach($webhook->metadata['tags'] as $tag)
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
@@ -161,8 +161,8 @@
 
                 <!-- Date Added -->
                 <div class="text-sm text-gray-500 dark:text-gray-400 border-t dark:border-gray-700 pt-4">
-                    <span class="flex items-center">
-                        🕒 Added to library {{ $webhook->created_at->format('F j, Y \a\t g:i A') }}
+                    <span class="flex items-center gap-1.5">
+                        <x-icon name="schedule" class="w-4 h-4" /> Added to library {{ $webhook->created_at->format('F j, Y \a\t g:i A') }}
                         <span class="ml-2 text-gray-400 dark:text-gray-500">({{ $webhook->created_at->diffForHumans() }})</span>
                     </span>
                 </div>
@@ -175,7 +175,7 @@
         <!-- Media Information -->
         <div class="bg-white dark:bg-gray-800 shadow-lg dark:shadow-black/30 rounded-xl overflow-hidden">
             <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-b dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">📊 Media Information</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1.5"><x-icon name="bar_chart" class="w-4 h-4" /> Media Information</h3>
             </div>
             <div class="p-6">
                 <dl class="space-y-4">
@@ -252,7 +252,7 @@
         @if(isset($webhook->metadata['external_urls']) && is_array($webhook->metadata['external_urls']) && count($webhook->metadata['external_urls']) > 0)
             <div class="bg-white dark:bg-gray-800 shadow-lg dark:shadow-black/30 rounded-xl overflow-hidden">
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-b dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">🔗 External Links</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1.5"><x-icon name="open_in_new" class="w-4 h-4" /> External Links</h3>
                 </div>
                 <div class="p-6">
                     <dl class="space-y-4">
@@ -280,7 +280,7 @@
         @if(config('app.show_provider_ids', true) && isset($webhook->metadata['provider_ids']) && is_array($webhook->metadata['provider_ids']) && count($webhook->metadata['provider_ids']) > 0)
             <div class="bg-white dark:bg-gray-800 shadow-lg dark:shadow-black/30 rounded-xl overflow-hidden">
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-b dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">🏷️ Provider IDs</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1.5"><x-icon name="label" class="w-4 h-4" /> Provider IDs</h3>
                 </div>
                 <div class="p-6">
                     <dl class="space-y-4">
@@ -304,7 +304,7 @@
     @if($webhook->item_path && ($showFileLocation ?? true))
         <div class="bg-white dark:bg-gray-800 shadow-lg dark:shadow-black/30 rounded-xl overflow-hidden mb-6">
             <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-b dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">📁 File Location</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1.5"><x-icon name="folder" class="w-4 h-4" /> File Location</h3>
             </div>
             <div class="p-6">
                 <code class="block bg-gray-100 dark:bg-gray-900 p-4 rounded-lg text-sm font-mono text-gray-800 dark:text-gray-300 break-all">
@@ -318,7 +318,7 @@
         <!-- Event Details -->
         <div class="bg-white dark:bg-gray-800 shadow-lg dark:shadow-black/30 rounded-xl overflow-hidden mb-6">
             <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-b dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">📡 Webhook Event Details</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1.5"><x-icon name="rss_feed" class="w-4 h-4" /> Webhook Event Details</h3>
             </div>
             <div class="p-6">
                 <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -346,7 +346,7 @@
         <div class="bg-white dark:bg-gray-800 shadow-lg dark:shadow-black/30 rounded-xl overflow-hidden">
             <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-b dark:border-gray-700">
                 <button onclick="toggleRawData()" class="w-full text-left flex items-center justify-between">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">🔧 Raw Webhook Data</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1.5"><x-icon name="tune" class="w-4 h-4" /> Raw Webhook Data</h3>
                     <svg id="raw-data-icon" class="h-5 w-5 text-gray-500 dark:text-gray-400 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>

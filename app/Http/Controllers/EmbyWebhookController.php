@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\EmbyWebhook;
+use App\Services\BrokenImageCleanupService;
 use App\Services\ImageFetchingService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -11,10 +12,12 @@ use Illuminate\Support\Facades\Log;
 class EmbyWebhookController extends Controller
 {
     private ImageFetchingService $imageFetchingService;
+    private BrokenImageCleanupService $brokenImageCleanupService;
 
-    public function __construct(ImageFetchingService $imageFetchingService)
+    public function __construct(ImageFetchingService $imageFetchingService, BrokenImageCleanupService $brokenImageCleanupService)
     {
         $this->imageFetchingService = $imageFetchingService;
+        $this->brokenImageCleanupService = $brokenImageCleanupService;
     }
 
     /**
@@ -306,6 +309,9 @@ class EmbyWebhookController extends Controller
      * Remove stale webhook entries. Runs on every dashboard load, which
      * includes the auto-refresh reload, so cleanup keeps pace with new events:
      * - Media-added entries whose cover image could not be fetched
+     * - A small batch of older entries whose poster/backdrop URL no longer
+     *   resolves, re-checked here instead of via a cron job (see
+     *   BrokenImageCleanupService)
      * - Old entries beyond the configured retention limit
      */
     private function cleanupWebhooks(): void
@@ -316,6 +322,12 @@ class EmbyWebhookController extends Controller
             Log::info('Cleanup: removed webhook entries with missing cover images', [
                 'count' => $imageErrorCount
             ]);
+        }
+
+        $batchSize = (int) config('services.webhook.image_check_batch', 5);
+
+        if ($batchSize > 0) {
+            $this->brokenImageCleanupService->run($batchSize);
         }
 
         $maxEntries = (int) config('services.webhook.max_entries', 100);
