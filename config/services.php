@@ -54,6 +54,9 @@ return [
         'allowed_item_types' => env('WEBHOOK_ALLOWED_ITEM_TYPES', 'Movie,Episode,Audio'),
         'max_entries' => env('WEBHOOK_MAX_ENTRIES', 100),
         'image_cache_ttl' => (int) env('IMAGE_CACHE_TTL_MINUTES', 1440),
+        'image_check_batch' => env('WEBHOOK_IMAGE_CHECK_BATCH', 5),
+        'image_recheck_minutes' => env('WEBHOOK_IMAGE_RECHECK_MINUTES', 15),
+        'image_check_strikes' => env('WEBHOOK_IMAGE_CHECK_STRIKES', 3),
     ],
 
     'emby' => [
